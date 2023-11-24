@@ -10,10 +10,10 @@ Authorization: Basic {{base64_of_username_colon_password}}
 GET {{url}}/wp-json/v1/panopticon/core/update?check_files=1
 Authorization: Basic {{base64_of_username_colon_password}}
 
-### TODO Apply the default WordPress update
+### Apply the default WordPress update
 POST {{url}}/wp-json/v1/panopticon/core/update
 Authorization: Basic {{base64_of_username_colon_password}}
 
-### TODO Install a specific version (assuming WordPress knows about it)
+### Install a specific version (assuming WordPress knows about it)
 POST {{url}}/wp-json/v1/panopticon/core/update?version=6.4.1
 Authorization: Basic {{base64_of_username_colon_password}}
