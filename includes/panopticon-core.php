@@ -16,7 +16,7 @@ class Panopticon_Core extends WP_REST_Controller
 		register_rest_route(
 			$namespace, '/core/update', [
 				[
-					'methods'             => 'GET',
+					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => [$this, 'getUpdate'],
 					'permission_callback' => [$this, 'ensureCanUpdateCore'],
 					'args'                => [
@@ -35,7 +35,7 @@ class Panopticon_Core extends WP_REST_Controller
 					],
 				],
 				[
-					'methods'             => 'POST',
+					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => [$this, 'installUpdate'],
 					'permission_callback' => [$this, 'ensureCanUpdateCore'],
 					'args'                => [
@@ -46,7 +46,7 @@ class Panopticon_Core extends WP_REST_Controller
 							},
 						],
 						'version'   => [
-							'required'          => true,
+							'required'          => false,
 							'validate_callback' => function ($x) {
 								try
 								{
@@ -74,7 +74,7 @@ class Panopticon_Core extends WP_REST_Controller
 	 *
 	 * @param   WP_REST_Request  $request
 	 *
-	 * @return  array
+	 * @return  WP_REST_Response|WP_Error
 	 * @since   1.0.0
 	 */
 	public function getUpdate(WP_REST_Request $request)
@@ -123,42 +123,51 @@ class Panopticon_Core extends WP_REST_Controller
 		}
 
 		// Return something sensible and predictable our code can query easily.
-		return [
-			'current'             => $currentVersion,
-			'currentStability'    => $this->detectStability($currentVersion),
-			'latest'              => $latestVersion,
-			'latestStability'     => $this->detectStability($latestVersion),
-			'minimumStability'    => $this->getMinimumStability(),
-			'needsUpdate'         => $needsUpdate,
-			'packages'            => $updateInfo->packages ?? new stdClass(),
-			'lastUpdateTimestamp' => null,
-			'dismissed'           => $updateInfo->dismissed ?? false,
-			'minPhpVersion'       => $updateInfo->php_version ?? '0.0',
-			'minMySQLVersion'     => $updateInfo->mysql_version ?? '0.0',
-			'newBundled'          => $updateInfo->new_bundled ?? $currentVersion,
-			'phpVersion'          => PHP_VERSION,
-			'panopticon'          => [
-				'version' => $ourPlugin->getVersion(),
-				'date'    => $ourPlugin->getReleaseDate(),
-				'api'     => $ourPlugin->getApiLevel(),
-			],
-			'sanityChecks'        => [
-				// False when the WP_AUTO_UPDATE_CORE constant allows auto-updates
-				'constants'             => $this->getMinimumStability() === null,
-				// False when a plugin has disabled wp_version_check()
-				'version_check_allowed' => $this->isWpVersionCheckAllowed(),
-				// False when ALL automatic updates are disabled by the automatic_updater_disabled filter
-				'updater_enabled'       => $this->isAutomaticUpdaterEnabled(),
-				// False when the site needs to be manually updated by providing FTP credentials
-				'ftp_free'              => $this->isFTPFree(),
-				// True when all core files are writeable
-				'all_writeable'         => !$checkWriteableFiles || $this->allFilesWriteable(),
-			],
-			'admintools'          => $this->getAdminToolsInformation(),
-			'serverInfo'          => (new Panopticon_Server_Info())(),
-		];
+		return new WP_REST_Response(
+			[
+				'current'             => $currentVersion,
+				'currentStability'    => $this->detectStability($currentVersion),
+				'latest'              => $latestVersion,
+				'latestStability'     => $this->detectStability($latestVersion),
+				'minimumStability'    => $this->getMinimumStability(),
+				'needsUpdate'         => $needsUpdate,
+				'packages'            => $updateInfo->packages ?? new stdClass(),
+				'lastUpdateTimestamp' => null,
+				'dismissed'           => $updateInfo->dismissed ?? false,
+				'minPhpVersion'       => $updateInfo->php_version ?? '0.0',
+				'minMySQLVersion'     => $updateInfo->mysql_version ?? '0.0',
+				'newBundled'          => $updateInfo->new_bundled ?? $currentVersion,
+				'phpVersion'          => PHP_VERSION,
+				'panopticon'          => [
+					'version' => $ourPlugin->getVersion(),
+					'date'    => $ourPlugin->getReleaseDate(),
+					'api'     => $ourPlugin->getApiLevel(),
+				],
+				'sanityChecks'        => [
+					// False when the WP_AUTO_UPDATE_CORE constant allows auto-updates
+					'constants'             => $this->getMinimumStability() === null,
+					// False when a plugin has disabled wp_version_check()
+					'version_check_allowed' => $this->isWpVersionCheckAllowed(),
+					// False when ALL automatic updates are disabled by the automatic_updater_disabled filter
+					'updater_enabled'       => $this->isAutomaticUpdaterEnabled(),
+					// False when the site needs to be manually updated by providing FTP credentials
+					'ftp_free'              => $this->isFTPFree(),
+					// True when all core files are writeable
+					'all_writeable'         => !$checkWriteableFiles || $this->allFilesWriteable(),
+				],
+				'admintools'          => $this->getAdminToolsInformation(),
+				'serverInfo'          => (new Panopticon_Server_Info())(),
+			], 200);
 	}
 
+	/**
+	 * Installs an update to WordPress itself
+	 *
+	 * @param   WP_REST_Request  $request
+	 *
+	 * @return  WP_REST_Response|WP_Error
+	 * @since   1.0.0
+	 */
 	public function installUpdate(WP_REST_Request $request)
 	{
 		// Get the parameters from the URL
@@ -170,21 +179,22 @@ class Panopticon_Core extends WP_REST_Controller
 		$return = [
 			'status' => false,
 			'found'  => false,
-			'error'  => null,
 		];
 
 		// Include necessary files, because WordPress doesn't use an autoloader.
-		require_once ABSPATH . 'wp-admin/update-core.php';
+		require_once ABSPATH . 'wp-admin/includes/update.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
 		// Try to find the update information object for the requested version
-		$update = find_core_update($version, $locale);
+		$update = find_core_update($version, $locale) ?: find_core_auto_update();
 
 		if (!$update)
 		{
-			$return['error'] = sprintf('Could not find update information for WordPress %s.', $version);
-
-			return $return;
+			return new WP_Error(
+				500,
+				sprintf('Could not find update information for WordPress %s.', $version),
+				$return
+			);
 		}
 
 		$return['found'] = true;
@@ -192,9 +202,11 @@ class Panopticon_Core extends WP_REST_Controller
 		// Make sure we don't need FTP credentials
 		if (!$this->isFTPFree())
 		{
-			$return['error'] = 'Your site requires FTP credentials to install/update the WordPress core.';
-
-			return $return;
+			return new WP_Error(
+				500,
+				'Your site requires FTP credentials to install/update the WordPress core.',
+				$return
+			);
 		}
 
 		/**
@@ -222,26 +234,32 @@ class Panopticon_Core extends WP_REST_Controller
 		{
 			if ($result->get_error_code() === 'up_to_date')
 			{
-				$return['error'] = 'Already up-to-date';
-
-				return $return;
+				return new WP_Error(
+					500,
+					'Already up-to-date',
+					$return
+				);
 			}
 
 			if ($result->get_error_code() === 'locked')
 			{
-				$return['error'] = 'Another update is already running';
-
-				return $return;
+				return new WP_Error(
+					500,
+					'Another update is already running',
+					$return
+				);
 			}
 
-			$return['error'] = $result->get_error_message();
-
-			return $return;
+			return new WP_Error(
+				500,
+				$result->get_error_message(),
+				$return
+			);
 		}
 
 		$return['status'] = true;
 
-		return $return;
+		return new WP_REST_Response($return, 200);
 	}
 
 	/**
