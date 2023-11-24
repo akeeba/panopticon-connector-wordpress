@@ -1,0 +1,19 @@
+### TODO Refresh updates
+POST {{url}}/v1/panopticon/updates
+Authorization: Basic {{base64_of_username_colon_password}}
+
+### TODO No extension to update
+POST {{url}}/v1/panopticon/update
+Authorization: Basic {{base64_of_username_colon_password}}
+
+### TODO Update plugin
+POST {{url}}/v1/panopticon/update
+Authorization: Basic {{base64_of_username_colon_password}}
+
+eid[]=foobar/foobar.php
+
+### TODO Update theme
+POST {{url}}/v1/panopticon/update
+Authorization: Basic {{base64_of_username_colon_password}}
+
+eid[]=sometheme

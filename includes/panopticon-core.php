@@ -154,7 +154,7 @@ class Panopticon_Core extends WP_REST_Controller
 				// True when all core files are writeable
 				'all_writeable'         => !$checkWriteableFiles || $this->allFilesWriteable(),
 			],
-			//'admintools'          => $this->getAdminToolsInformation(),
+			'admintools'          => $this->getAdminToolsInformation(),
 			'serverInfo'          => (new Panopticon_Server_Info())(),
 		];
 	}
@@ -494,4 +494,91 @@ class Panopticon_Core extends WP_REST_Controller
 
 		return true;
 	}
+
+	/**
+	 * Get information about Admin Tools Professional (if installed)
+	 *
+	 * @return  object|null
+	 * @since   1.0.0
+	 */
+	private function getAdminToolsInformation(): ?object
+	{
+		if (!function_exists('is_plugin_active'))
+		{
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$ret = (object) [
+			'enabled'      => is_plugin_active('admintoolswp/admintoolswp.php'),
+			'renamed'      => false,
+			'secret_word'  => null,
+			'admindir'     => 'wp-admin',
+			'awayschedule' => (object) [
+				'timezone' => 'UTC',
+				'from'     => null,
+				'to'       => null,
+			],
+		];
+
+		if (!$ret->enabled)
+		{
+			return $ret;
+		}
+
+		$ret->renamed = !file_exists(WP_CONTENT_DIR . '/plugins/admintoolswp/app/plugins/waf/admintools/main.php');
+
+		$config = $this->getAdminToolsConfigRegistry() ?? new stdClass();
+		$ret->secret_word = $config->adminpw ?? null;
+		$ret->admindir               = $config->adminlogindir ?? 'administrator';
+		$ret->awayschedule->timezone = wp_timezone()->getName();
+		$ret->awayschedule->from     = $config->awayschedule_from ?? null;
+		$ret->awayschedule->to       = $config->awayschedule_from ?? null;
+
+		return $ret;
+	}
+
+	/**
+	 * Get the configuration information for Admin Tools Professional
+	 *
+	 * @return  object|mixed|null
+	 * @since   1.0.0
+	 */
+	private function getAdminToolsConfigRegistry(): ?object
+	{
+		global $wpdb;
+
+		$query = $wpdb->prepare(
+			'SELECT %i FROM %i WHERE %i = %s',
+			'at_value',
+			$wpdb->prefix . 'admintools_storage',
+			'at_key',
+			'cparams'
+		);
+
+		try
+		{
+			$json = $wpdb->get_var($query);
+		}
+		catch (Exception $e)
+		{
+			return null;
+		}
+
+
+		if (empty($json))
+		{
+			return null;
+		}
+
+		try
+		{
+			return json_decode($json);
+		}
+		catch (Exception $e)
+		{
+			return null;
+		}
+	}
+
+
 }
