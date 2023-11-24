@@ -42,6 +42,7 @@ class PanopticonPlugin
 	 * @since 1.0.0
 	 */
 	private static $classes = [
+		Panopticon_Server_Info::class,
 		Panopticon_Core::class,
 	];
 

@@ -9,4 +9,4 @@ defined('WPINC') || die;
 
 const AKEEBA_PANOPTICON_VERSION = '##VERSION##';
 const AKEEBA_PANOPTICON_DATE    = '##DATE##';
-const AKEEBA_PANOPTICON_API     = 100;
+const AKEEBA_PANOPTICON_API     = 101;

@@ -5,6 +5,8 @@
  * @license   https://www.gnu.org/licenses/agpl-3.0.txt GNU Affero General Public License, version 3 or later
  */
 
+defined('WPINC') || die;
+
 class Panopticon_Core extends WP_REST_Controller
 {
 	public function register_routes()
@@ -13,57 +15,57 @@ class Panopticon_Core extends WP_REST_Controller
 
 		register_rest_route(
 			$namespace, '/core/update', [
-			[
-				'methods'             => 'GET',
-				'callback'            => [$this, 'getUpdate'],
-				'permission_callback' => [$this, 'ensureCanUpdateCore'],
-				'args'                => [
-					'force'       => [
-						'default'           => false,
-						'sanitize_callback' => function ($x) {
-							return boolval($x);
-						},
-					],
-					'check_files' => [
-						'default'           => false,
-						'sanitize_callback' => function ($x) {
-							return boolval($x);
-						},
+				[
+					'methods'             => 'GET',
+					'callback'            => [$this, 'getUpdate'],
+					'permission_callback' => [$this, 'ensureCanUpdateCore'],
+					'args'                => [
+						'force'       => [
+							'default'           => false,
+							'sanitize_callback' => function ($x) {
+								return boolval($x);
+							},
+						],
+						'check_files' => [
+							'default'           => false,
+							'sanitize_callback' => function ($x) {
+								return boolval($x);
+							},
+						],
 					],
 				],
-			],
-			[
-				'methods'             => 'POST',
-				'callback'            => [$this, 'installUpdate'],
-				'permission_callback' => [$this, 'ensureCanUpdateCore'],
-				'args'                => [
-					'reinstall'       => [
-						'default'           => false,
-						'sanitize_callback' => function ($x) {
-							return boolval($x);
-						},
-					],
-					'version' => [
-						'required'          => true,
-						'validate_callback' => function ($x) {
-							try
-							{
-								$dummy = \z4kn4fein\SemVer\Version::parse($x);
-							}
-							catch (\z4kn4fein\SemVer\VersionFormatException $e)
-							{
-								return false;
-							}
+				[
+					'methods'             => 'POST',
+					'callback'            => [$this, 'installUpdate'],
+					'permission_callback' => [$this, 'ensureCanUpdateCore'],
+					'args'                => [
+						'reinstall' => [
+							'default'           => false,
+							'sanitize_callback' => function ($x) {
+								return boolval($x);
+							},
+						],
+						'version'   => [
+							'required'          => true,
+							'validate_callback' => function ($x) {
+								try
+								{
+									$dummy = \z4kn4fein\SemVer\Version::parse($x);
+								}
+								catch (\z4kn4fein\SemVer\VersionFormatException $e)
+								{
+									return false;
+								}
 
-							return true;
-						}
+								return true;
+							},
+						],
+						'locale'    => [
+							'default' => null,
+						],
 					],
-					'locale' => [
-						'default' => null
-					]
 				],
-			],
-		]
+			]
 		);
 	}
 
@@ -153,6 +155,7 @@ class Panopticon_Core extends WP_REST_Controller
 				'all_writeable'         => !$checkWriteableFiles || $this->allFilesWriteable(),
 			],
 			//'admintools'          => $this->getAdminToolsInformation(),
+			'serverInfo'          => (new Panopticon_Server_Info())(),
 		];
 	}
 
