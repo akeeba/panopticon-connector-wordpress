@@ -1,0 +1,69 @@
+{
+	"name": "akeeba/panopticon_connector_wp",
+	"type": "wordpress-plugin",
+	"description": "Akeeba Panopticon Connector — Joomla connector application for Akeeba Panopticon",
+	"homepage": "https://github.com/akeeba/panopticon_connector_wp",
+	"support": {
+		"issues": "https://github.com/akeeba/panopticon_connector_wp/issues"
+	},
+	"license": "AGPL-3.0-or-later",
+	"authors": [
+		{
+			"name": "Nicholas K. Dionysopoulos",
+			"email": "nicholas_NO_SPAM_PLEASE@akeeba.com",
+			"homepage": "http://www.dionysopoulos.me",
+			"role": "Lead Developer"
+		}
+	],
+	"keywords": [
+		"wordpress",
+		"monitoring",
+		"backup",
+		"security",
+		"connector"
+	],
+	"require": {
+		"php": "^7.2.5|^8.0",
+		"ext-curl": "*",
+		"ext-mbstring": "*",
+		"ext-json": "*",
+		"ext-simplexml": "*",
+		"z4kn4fein/php-semver": "^1.2.0"
+	},
+	"require-dev": {
+		"composer/installers": "~1.0|~2.0"
+	},
+	"suggest": {
+		"ext-pdo": "*",
+		"ext-zend-opcache": "*"
+	},
+	"config": {
+		"allow-plugins": {
+			"composer/installers": true,
+			"optimize-autoloader": true,
+			"sort-packages": true
+		},
+		"platform": {
+			"php": "7.2.5"
+		}
+	},
+	"autoload": {
+		"classmap": [
+		]
+	},
+	"extra": {
+		"instaler-name": "panopticon"
+	},
+	"archive": {
+		"exclude": [
+			".idea",
+			"assets",
+			"build",
+			".gitignore",
+			".gitattributes",
+			"build.xml",
+			"composer.lock",
+			"README.md"
+		]
+	}
+}

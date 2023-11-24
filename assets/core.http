@@ -1,0 +1,12 @@
+### Get update information
+GET {{url}}/wp-json/v1/panopticon/core/update
+Authorization: Basic {{base64_of_username_colon_password}}
+
+### Get update information, forced
+GET {{url}}/wp-json/v1/panopticon/core/update?force=1
+Authorization: Basic {{base64_of_username_colon_password}}
+
+### Get update information, with file checks
+GET {{url}}/wp-json/v1/panopticon/core/update?check_files=1
+Authorization: Basic {{base64_of_username_colon_password}}
+
