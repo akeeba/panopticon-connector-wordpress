@@ -184,6 +184,9 @@ class Panopticon_Core extends WP_REST_Controller
 		// Include necessary files, because WordPress doesn't use an autoloader.
 		require_once ABSPATH . 'wp-admin/includes/update.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader-skin.php';
+		require_once ABSPATH . 'wp-admin/includes/class-automatic-upgrader-skin.php';
 
 		// Try to find the update information object for the requested version
 		$update = find_core_update($version, $locale) ?: find_core_auto_update();
