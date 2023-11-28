@@ -1,48 +1,48 @@
 ### TODO Unblock an IP address
-POST {{url}}/wp-json/v1/admintools/unblock
-Authorization: Basic {{base64_of_username_colon_password}}
+POST {{url}}v1/admintools/unblock
+X-Panopticon-Token: {{token}}
 Content-Type: application/x-www-form-urlencoded
 
 ip=123.234.123.234
 
 ### TODO Disable Admin Tools (rename `main.php` to `main-disable.php`)
 POST {{url}}/v1/panopticon/admintools/plugin/disable
-Authorization: Basic {{base64_of_username_colon_password}}
+X-Panopticon-Token: {{token}}
 
 ### TODO Enable Admin Tools
 POST {{url}}/v1/panopticon/admintools/plugin/enable
-Authorization: Basic {{base64_of_username_colon_password}}
+X-Panopticon-Token: {{token}}
 
 ### TODO Remove the Admin Tools section from the .htaccess file
 POST {{url}}/v1/panopticon/admintools/htaccess/disable
-Authorization: Basic {{base64_of_username_colon_password}}
+X-Panopticon-Token: {{token}}
 
 ### TODO Add the Admin Tools section to the .htaccess file
 POST {{url}}/v1/panopticon/admintools/htaccess/enable
-Authorization: Basic {{base64_of_username_colon_password}}
+X-Panopticon-Token: {{token}}
 
 ### TODO Create a temporary Administrator account
 POST {{url}}/v1/panopticon/admintools/tempsuperuser
-Authorization: Basic {{base64_of_username_colon_password}}
+X-Panopticon-Token: {{token}}
 
 expiration=2023-12-31 20:10:00
 
 ### TODO Start the PHP File Change Scanner
 POST {{url}}/v1/panopticon/admintools/scanner/start
-Authorization: Basic {{base64_of_username_colon_password}}
+X-Panopticon-Token: {{token}}
 
 ### TODO Step through the PHP File Change Scanner
 POST {{url}}/v1/panopticon/admintools/scanner/step
-Authorization: Basic {{base64_of_username_colon_password}}
+X-Panopticon-Token: {{token}}
 
 ### TODO Get a list of all scans, with their status
 GET {{url}}/v1/panopticon/admintools/scans
-Authorization: Basic {{base64_of_username_colon_password}}
+X-Panopticon-Token: {{token}}
 
 ### TODO Get a list of all scanned files (`scanalerts`) for a specific scan
 GET {{url}}/v1/panopticon/admintools/scan/27
-Authorization: Basic {{base64_of_username_colon_password}}
+X-Panopticon-Token: {{token}}
 
 ### TODO Get information about a specific scanned file (`scanalert`)
 GET {{url}}/v1/panopticon/admintools/scanalert/29621
-Authorization: Basic {{base64_of_username_colon_password}}
+X-Panopticon-Token: {{token}}

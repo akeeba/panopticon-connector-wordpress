@@ -240,6 +240,157 @@ class PanopticonPlugin
 	}
 
 	/**
+	 * Authorize an API user.
+	 *
+	 * If the provided token matches the configured one we log in the first Super Admin (multisite), or Administrator
+	 * user we can find.
+	 *
+	 * @param   mixed  $user
+	 *
+	 * @return  mixed
+	 */
+	public function authorizeAPIUser($user)
+	{
+		// We must have no logged-in user, and the token in the request must match the configured one.
+		if (!empty($user) || !$this->isAuthenticated())
+		{
+			return $user;
+		}
+
+		$users = get_users(
+			[
+				'role'    => is_multisite() ? 'Super Admin' : 'Administrator',
+				'orderby' => 'ID',
+				'number'  => 1,
+			]
+		);
+
+		return $users[0];
+	}
+
+	/**
+	 * Register a custom page under the Tools menu item.
+	 *
+	 * @return  void
+	 * @since   1.0.0
+	 */
+	public function registerAdminMenu(): void
+	{
+		add_management_page(
+			__('Panopticon', 'panopticon'), __('Panopticon', 'panopticon'), 'update_core', __FILE__,
+			[$this, 'adminPage']
+		);
+	}
+
+	/**
+	 * Render the custom page under the Tools menu item.
+	 *
+	 * @return  void
+	 * @since   1.0.0
+	 */
+	public function adminPage(): void
+	{
+		?>
+		<div class="card-XXX">
+			<h2 class="title">
+				<?= __('Connection information', 'panopticon') ?>
+			</h2>
+			<table>
+				<tr>
+					<th scope="row">
+						<?= __('Endpoint URL', 'panopticon') ?>
+					</th>
+					<td>
+						<code>
+							<?= get_rest_url() ?>
+						</code>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">
+						<?= __('Token', 'panopticon') ?>
+					</th>
+					<td>
+						<code>
+							<?= $this->getToken() ?>
+						</code>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Get the (hashed, salted) token which authenticates our API
+	 *
+	 * @return  string
+	 * @since   1.0.0
+	 */
+	public function getToken(): string
+	{
+		$salt  = wp_salt('auth');
+		$token = get_option('panopticon_token', null);
+
+		if (empty($token))
+		{
+			$token = wp_generate_password('64', false);
+			update_option('panopticon_token', $token, true);
+		}
+
+		return hash('sha256', $token . ':' . $salt);
+	}
+
+	/**
+	 * Does the token in the request match the one set up in the plugin?
+	 *
+	 * @return  bool
+	 * @since   1.0.0
+	 */
+	private function isAuthenticated(): bool
+	{
+		$authHeader  = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+		$tokenString = '';
+
+		// Apache specific fixes. See https://github.com/symfony/symfony/issues/19693
+		if (
+			empty($authHeader) && \PHP_SAPI === 'apache2handler'
+			&& function_exists('apache_request_headers')
+			&& apache_request_headers() !== false
+		)
+		{
+			$apacheHeaders = array_change_key_case(apache_request_headers(), CASE_LOWER);
+
+			if (array_key_exists('authorization', $apacheHeaders))
+			{
+				$authHeader = $apacheHeaders['authorization'];
+			}
+		}
+
+		// Preferred form: `Authorization: Bearer TOKEN_STRING`.
+		if (substr($authHeader, 0, 7) == 'Bearer ')
+		{
+			$parts       = explode(' ', $authHeader, 2);
+			$tokenString = trim($parts[1]);
+		}
+
+		// Fallback: `X-Panopticon-Token: TOKEN_STRING`.
+		if (empty($tokenString))
+		{
+			$tokenString = $_SERVER['HTTP_X_PANOPTICON_TOKEN'] ?? '';
+		}
+
+		// Fallback: `X-Joomla-Token: TOKEN_STRING` (this is used )for simplicity in Panopticon 1.x).
+		if (empty($tokenString))
+		{
+			$tokenString = $_SERVER['HTTP_X_JOOMLA_TOKEN'] ?? '';
+		}
+
+		// DO NOT INLINE. We want to run both checks.
+		return hash_equals($this->getToken(), $tokenString);
+	}
+
+	/**
 	 * Retrieves the version info from the contents of this plugin file
 	 *
 	 * @return  void
@@ -292,12 +443,20 @@ class PanopticonPlugin
 			}
 		}
 	}
-
 }
 
-// Initialize the plugin
-PanopticonPlugin::getInstance();
+call_user_func(
+	function () {
+		// Initialize the plugin
+		$panopticon = PanopticonPlugin::getInstance();
 
-// Register the various activation hooks
-register_activation_hook(__FILE__, [PanopticonPlugin::class, 'activation']);
-register_deactivation_hook(__FILE__, [PanopticonPlugin::class, 'deactivation']);
+		// Register the various activation hooks
+		register_activation_hook(__FILE__, [PanopticonPlugin::class, 'activation']);
+		register_deactivation_hook(__FILE__, [PanopticonPlugin::class, 'deactivation']);
+
+		// Register admin hooks
+		add_action('admin_menu', [$panopticon, 'registerAdminMenu']);
+		add_filter('determine_current_user', [$panopticon, 'authorizeAPIUser'], 20);
+	}
+);
+
