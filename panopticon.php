@@ -341,6 +341,14 @@ class PanopticonPlugin
 		return hash('sha256', $token . ':' . $salt);
 	}
 
+	public function registerWpCliCommands() {
+		require_once __DIR__ . '/includes/panopticon-cli-namespace.php';
+		require_once __DIR__ . '/includes/panopticon-cli-token.php';
+
+		WP_CLI::add_command('panopticon', Panopticon_Cli_Namespace::class);
+		WP_CLI::add_command('panopticon token', Panopticon_Cli_Token::class);
+	}
+
 	/**
 	 * Does the token in the request match the one set up in the plugin?
 	 *
@@ -457,6 +465,12 @@ call_user_func(
 		// Register admin hooks
 		add_action('admin_menu', [$panopticon, 'registerAdminMenu']);
 		add_filter('determine_current_user', [$panopticon, 'authorizeAPIUser'], 20);
+
+		// WP-CLI integration
+		if (defined('WP_CLI') && WP_CLI)
+		{
+			$panopticon->registerWpCliCommands();
+		}
 	}
 );
 
