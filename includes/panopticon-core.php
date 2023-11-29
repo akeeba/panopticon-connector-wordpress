@@ -67,6 +67,16 @@ class Panopticon_Core extends WP_REST_Controller
 				],
 			]
 		);
+
+		register_rest_route(
+			$namespace, '/core/updatedb', [
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [$this, 'updateDatabase'],
+					'permission_callback' => [$this, 'ensureCanUpdateCore'],
+				],
+			]
+		);
 	}
 
 	/**
@@ -104,9 +114,9 @@ class Panopticon_Core extends WP_REST_Controller
 		$ourPlugin = PanopticonPlugin::getInstance();
 
 		// This returns object or false. Hello, 1998! We have to unwrap it the VERY hard way.
-		$updateInfo     = get_preferred_from_update_core() ?: new stdClass();
-		$latestVersion  = $updateInfo->version ?? null;
-		$needsUpdate    = ($updateInfo->response ?? '') === 'upgrade';
+		$updateInfo    = get_preferred_from_update_core() ?: new stdClass();
+		$latestVersion = $updateInfo->version ?? null;
+		$needsUpdate   = ($updateInfo->response ?? '') === 'upgrade';
 
 		// This is the only reliable way to get the current version.
 		$currentVersion = get_bloginfo('version');
@@ -153,7 +163,8 @@ class Panopticon_Core extends WP_REST_Controller
 				],
 				'admintools'          => $this->getAdminToolsInformation(),
 				'serverInfo'          => (new Panopticon_Server_Info())(),
-			], 200);
+			], 200
+		);
 	}
 
 	/**
@@ -166,6 +177,18 @@ class Panopticon_Core extends WP_REST_Controller
 	 */
 	public function installUpdate(WP_REST_Request $request)
 	{
+		if (function_exists('error_reporting'))
+		{
+			error_reporting(0);
+		}
+
+		if (function_exists('ini_set'))
+		{
+			ini_set('display_errors', false);
+			ini_set('max_execution_time', 86400);
+			ini_set('memory_limit', 2147483648);
+		}
+
 		// Get the parameters from the URL
 		$version   = $request['version'];
 		$reinstall = $request['reinstall'];
@@ -189,8 +212,8 @@ class Panopticon_Core extends WP_REST_Controller
 			wp_version_check();
 
 			// Get the latest available version for update
-			$updateInfo     = get_preferred_from_update_core() ?: new stdClass();
-			$version        = $updateInfo->version ?? null;
+			$updateInfo = get_preferred_from_update_core() ?: new stdClass();
+			$version    = $updateInfo->version ?? null;
 		}
 
 		// Set up the return data
@@ -246,7 +269,7 @@ class Panopticon_Core extends WP_REST_Controller
 		// Try to install the WordPress update
 		$upgrader = new Core_Upgrader();
 		@ob_start();
-		$result   = $upgrader->upgrade(
+		$result = $upgrader->upgrade(
 			$update,
 			[
 				'allow_relaxed_file_ownership' => $allow_relaxed_file_ownership,
@@ -284,6 +307,48 @@ class Panopticon_Core extends WP_REST_Controller
 		$return['status'] = true;
 
 		return new WP_REST_Response($return, 200);
+	}
+
+	/**
+	 * Updates the WordPress database post-update
+	 *
+	 * @param   WP_REST_Request  $request
+	 *
+	 * @return  WP_REST_Response|WP_Error
+	 * @since   1.0.0
+	 */
+	public function updateDatabase(WP_REST_Request $request)
+	{
+		if (function_exists('error_reporting'))
+		{
+			error_reporting(0);
+		}
+
+		if (function_exists('ini_set'))
+		{
+			ini_set('display_errors', false);
+			ini_set('max_execution_time', 86400);
+			ini_set('memory_limit', 2147483648);
+		}
+
+		// Include necessary files, because WordPress doesn't use an autoloader.
+		require_once ABSPATH . 'wp-admin/includes/update.php';
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader-skin.php';
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/class-automatic-upgrader-skin.php';
+
+		try
+		{
+			wp_upgrade();
+
+			return new WP_REST_Response(true);
+		}
+		catch (Throwable $e)
+		{
+			return new WP_Error($e->getCode(), $e->getMessage());
+		}
 	}
 
 	/**
@@ -569,8 +634,8 @@ class Panopticon_Core extends WP_REST_Controller
 
 		$ret->renamed = !file_exists(WP_CONTENT_DIR . '/plugins/admintoolswp/app/plugins/waf/admintools/main.php');
 
-		$config = $this->getAdminToolsConfigRegistry() ?? new stdClass();
-		$ret->secret_word = $config->adminpw ?? null;
+		$config                      = $this->getAdminToolsConfigRegistry() ?? new stdClass();
+		$ret->secret_word            = $config->adminpw ?? null;
 		$ret->admindir               = $config->adminlogindir ?? 'administrator';
 		$ret->awayschedule->timezone = wp_timezone()->getName();
 		$ret->awayschedule->from     = $config->awayschedule_from ?? null;
