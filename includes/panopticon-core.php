@@ -105,15 +105,11 @@ class Panopticon_Core extends WP_REST_Controller
 
 		// This returns object or false. Hello, 1998! We have to unwrap it the VERY hard way.
 		$updateInfo     = get_preferred_from_update_core() ?: new stdClass();
-		$currentVersion = $updateInfo->current ?? null;
 		$latestVersion  = $updateInfo->version ?? null;
 		$needsUpdate    = ($updateInfo->response ?? '') === 'upgrade';
 
-		// If we had no update info we'll get the current blog info in a different way. It's WP, there's no easy way.
-		if (empty($currentVersion))
-		{
-			$currentVersion = get_bloginfo('version');
-		}
+		// This is the only reliable way to get the current version.
+		$currentVersion = get_bloginfo('version');
 
 		// If there was no known latest version pretend this is the latest version.
 		if (empty($latestVersion))
@@ -175,6 +171,28 @@ class Panopticon_Core extends WP_REST_Controller
 		$reinstall = $request['reinstall'];
 		$locale    = $request['locale'] ?? get_locale();
 
+		// If there is no version, try to find the fittest version.
+		if (empty($version))
+		{
+			// WordPress does not know what an autoloader is, so we get to load arbitrary .php files like heathens.
+			if (!function_exists('get_preferred_from_update_core'))
+			{
+				require_once ABSPATH . 'wp-admin/includes/update.php';
+			}
+
+			if (!class_exists('WP_Site_Health_Auto_Updates'))
+			{
+				require_once ABSPATH . 'wp-admin/includes/class-wp-site-health-auto-updates.php';
+			}
+
+			// Make sure the update info isn't stale
+			wp_version_check();
+
+			// Get the latest available version for update
+			$updateInfo     = get_preferred_from_update_core() ?: new stdClass();
+			$version        = $updateInfo->version ?? null;
+		}
+
 		// Set up the return data
 		$return = [
 			'status' => false,
@@ -183,19 +201,20 @@ class Panopticon_Core extends WP_REST_Controller
 
 		// Include necessary files, because WordPress doesn't use an autoloader.
 		require_once ABSPATH . 'wp-admin/includes/update.php';
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader-skin.php';
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/class-automatic-upgrader-skin.php';
 
-		// Try to find the update information object for the requested version
-		$update = find_core_update($version, $locale) ?: find_core_auto_update();
+		// Try to find the update information object for the requested version.
+		$update = find_core_update($version, $locale);
 
 		if (!$update)
 		{
 			return new WP_Error(
 				500,
-				sprintf('Could not find update information for WordPress %s.', $version),
+				sprintf('Could not find update information for WordPress %s.', $version ?: 'latest'),
 				$return
 			);
 		}
@@ -226,12 +245,14 @@ class Panopticon_Core extends WP_REST_Controller
 
 		// Try to install the WordPress update
 		$upgrader = new Core_Upgrader();
+		@ob_start();
 		$result   = $upgrader->upgrade(
 			$update,
 			[
 				'allow_relaxed_file_ownership' => $allow_relaxed_file_ownership,
 			]
 		);
+		@ob_end_clean();
 
 		if (is_wp_error($result))
 		{
