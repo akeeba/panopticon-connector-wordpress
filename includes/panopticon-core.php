@@ -7,8 +7,18 @@
 
 defined('WPINC') || die;
 
+/**
+ * API REST Controller for core CMS information
+ *
+ * @since  1.0.0
+ */
 class Panopticon_Core extends WP_REST_Controller
 {
+	/**
+	 * Registers the API route handlers provided by this controller.
+	 *
+	 * @since  1.0.0
+	 */
 	public function register_routes()
 	{
 		$namespace = \PanopticonPlugin::getApiPrefix();
