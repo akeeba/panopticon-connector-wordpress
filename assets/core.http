@@ -19,5 +19,5 @@ POST {{url}}v1/panopticon/core/updatedb
 X-Panopticon-Token: {{token}}
 
 ### Install a specific version (assuming WordPress knows about it)
-POST {{url}}v1/panopticon/core/update?version=6.3.2
+POST {{url}}v1/panopticon/core/update?version=6.4.3
 X-Panopticon-Token: {{token}}

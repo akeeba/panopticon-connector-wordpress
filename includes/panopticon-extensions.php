@@ -22,7 +22,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 		$namespace = \PanopticonPlugin::getApiPrefix();
 
 		register_rest_route(
-			$namespace, '/core/extensions', [
+			$namespace, '/extensions', [
 				[
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => [$this, 'getExtensions'],
@@ -50,24 +50,106 @@ class Panopticon_Extensions extends \WP_REST_Controller
 	 */
 	public function getExtensions(WP_REST_Request $request)
 	{
+		// WordPress does not know what an autoloader is, so we get to load arbitrary .php files like heathens.
+		if (!function_exists('get_plugin_updates'))
+		{
+			require_once ABSPATH . 'wp-admin/includes/update.php';
+		}
+
+		if (!function_exists('get_plugins'))
+		{
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
 		// Get the parameters.
 		/** @var bool $force */
 		$force = boolval($request['force']);
 
-		// TODO Force reload plugin updates?
-		// TODO Force reload theme updates?
+		// When forcing the retrieval of updates, we just need to delete the current update information.
+		if ($force)
+		{
+			// This should do nothing
+			delete_transient('update_plugins');
+			delete_transient('update_themes');
+			// This should actually delete the transient with the updates
+			delete_site_transient('update_plugins');
+			delete_site_transient('update_themes');
+		}
 
-		// TODO List the list of plugins
-		// TODO List the list of plugin updates
-		// TODO List the list of themes
-		// TODO List the list of theme updates
+		// Ask WordPress to refresh the plugin and theme update information, if necessary
+		wp_update_plugins();
+		wp_update_themes();
+
+		// List plugins and their updates
+		$pList    = array_map(
+			function ($x) {
+				return [
+					'name'         => $x['Name'],
+					'plugin_uri'   => $x['PluginURI'],
+					'version'      => $x['Version'],
+					'description'  => $x['Description'],
+					'author'       => $x['Author'],
+					'author_uri'   => $x['AuthorURI'],
+					'text_domain'  => $x['TextDomain'],
+					'domain_path'  => $x['DomainPath'],
+					'network'      => $x['Network'],
+					'requires'     => $x['RequiresWP'],
+					'requires_php' => $x['RequiresPHP'],
+					'update_uri'   => $x['UpdateURI'],
+					'title'        => $x['Title'],
+					'author_name'  => $x['AuthorName'],
+				];
+			}, get_plugins()
+		);
+		$pUpdates = get_plugin_updates();
+
+		// List themes and their updates
+		$tList    = array_map(
+			function (WP_Theme $x) {
+				return [
+					'name'           => $x->get('Name'),
+					'theme_uri'      => $x->get('ThemeURI'),
+					'description'    => $x->get('Description'),
+					'author'         => $x->get('Author'),
+					'author_uri'     => $x->get('AuthorURI'),
+					'version'        => $x->get('Version'),
+					'template'       => $x->get('Template'),
+					'status'         => $x->get('Status'),
+					'tags'           => $x->get('Tags'),
+					'text_domain'    => $x->get('TextDomain'),
+					'domain_path'    => $x->get('DomainPath'),
+					'requires'       => $x->get('RequiresWP'),
+					'requires_php'   => $x->get('RequiresPHP'),
+					'update_uri'     => $x->get('UpdateURI'),
+					'parent_theme'   => $x->parent_theme,
+					'template_dir'   => $x->template_dir,
+					'stylesheet_dir' => $x->stylesheet_dir,
+					'stylesheet'     => $x->stylesheet,
+					'screenshot'     => $x->screenshot,
+					'theme_root'     => $x->theme_root,
+					'theme_root_uri' => $x->theme_root_uri,
+				];
+			}, wp_get_themes()
+		);
+		$tUpdates = get_theme_updates();
 
 		$return = [
-			'plugins' => [],
-			'themes'  => [],
-		];
+			'plugins' => array_map(
+				function ($k, $v) use ($pUpdates) {
+					$v['update'] = $pUpdates->{$k} ?? [];
 
-		// TODO Populate $return['plugins']
+					return $v;
+				}, array_keys($pList), array_values($pList)
+			),
+			'themes'  => array_map(
+				function ($k, $v) use ($tUpdates) {
+					$update      = $tUpdates[$k] ?? [];
+					$v['update'] = $update->update ?? [];
+
+					return $v;
+				}, array_keys($tList), array_values($tList)
+			),
+		];
 
 		// TODO Populate $return['themes']
 
@@ -80,7 +162,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 	 * @return  bool
 	 * @since   1.0.0
 	 */
-	public function ensureCanUpdateCore(): bool
+	public function canListExtensions(): bool
 	{
 		if (is_multisite())
 		{
