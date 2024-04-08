@@ -1,13 +1,13 @@
-### TODO Refresh updates
+### Refresh updates
 POST {{url}}v1/panopticon/updates
 X-Panopticon-Token: {{token}}
 
-### TODO No extension to update
+### No extension to update (error 404)
 POST {{url}}v1/panopticon/update
 X-Panopticon-Token: {{token}}
 
 ### TODO Update plugin
-POST {{url}}v1/panopticon/update/plugin/foobar/foobar.php
+POST {{url}}v1/panopticon/update/plugin/safe-svg/safe-svg.php
 X-Panopticon-Token: {{token}}
 
 ### TODO Update theme

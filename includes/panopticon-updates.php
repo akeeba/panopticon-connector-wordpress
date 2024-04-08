@@ -27,7 +27,7 @@ class Panopticon_Updates extends WP_REST_Controller
 		);
 
 		register_rest_route(
-			$namespace, '/update/plugin/(?P<plugin>[^.\/]+(?:\/[^.\/]+)?)', [
+			$namespace, '/update/plugin/(?P<plugin>[^./]+(?:/[^/]+)?)', [
 				[
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => [$this, 'updatePlugin'],
@@ -69,6 +69,25 @@ class Panopticon_Updates extends WP_REST_Controller
 
 	public function updatePlugin(WP_REST_Request $request)
 	{
+		if (!function_exists('show_message'))
+		{
+			function show_message($message)
+			{
+				global $_panopticon_upgrade_messages;
+
+				$_panopticon_upgrade_messages = ($_panopticon_upgrade_messages ?? '') . $message;
+			}
+		}
+		else
+		{
+			/**
+			 * WordPress' show_message function kills output buffering, then calls flush() for good measure, thus
+			 * ensuring that it is impossible to call it without breaking the heck out of the JSON API it itself
+			 * provides!
+			 */
+			$brokenWPWorkaround = true;
+		}
+
 		if (!function_exists('get_plugin_updates'))
 		{
 			require_once ABSPATH . 'wp-admin/includes/update.php';
@@ -78,6 +97,13 @@ class Panopticon_Updates extends WP_REST_Controller
 		{
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
+
+		if (!function_exists('request_filesystem_credentials'))
+		{
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		$brokenWPWorkaround = false;
 
 		if (!class_exists(Plugin_Upgrader::class))
 		{
@@ -89,7 +115,7 @@ class Panopticon_Updates extends WP_REST_Controller
 			require_once ABSPATH . 'wp-admin/includes/class-plugin-upgrader-skin.php';
 		}
 
-		$plugin = $request['plugin'];
+		$plugin  = $request['plugin'];
 		$plugins = get_plugins();
 
 		if (!isset($plugins[$plugin]))
@@ -102,37 +128,44 @@ class Panopticon_Updates extends WP_REST_Controller
 
 		if (!isset($updates->{$plugin}))
 		{
-			// TODO Return error 409: no such update
+			return new WP_Error('no_such_update', 'There is no such update', ['status' => 409]);
 		}
 
 		// Install the plugin update
 		@ob_start();
-		$upgrader = new Plugin_Upgrader(new Plugin_Upgrader_Skin([
-			'plugin' => $plugin
-		]));
-		$result = $upgrader->upgrade($plugin);
+		$upgrader = new Plugin_Upgrader(
+			new Plugin_Upgrader_Skin(
+				[
+					'plugin' => $plugin,
+				]
+			)
+		);
+		$result   = $upgrader->upgrade($plugin);
 		@ob_end_clean();
+
+		if ($brokenWPWorkaround)
+		{
+			echo '###!#!--!-+=+-!--!#!###' . "\n";
+		}
 
 		if (is_wp_error($result))
 		{
 			return $result;
 		}
 
-		return new WP_REST_Response([
-			'status' => true
-		]);
+		global $_panopticon_upgrade_messages;
+
+		return new WP_REST_Response(
+			[
+				'status'   => true,
+				'messages' => $_panopticon_upgrade_messages,
+			]
+		);
 	}
 
 	public function canUpdateExtensions(): bool
 	{
-		if (is_multisite())
-		{
-			return current_user_can('manage_network_plugins')
-			       && current_user_can('manage_network_themes');
-		}
-
-		return current_user_can('update_plugins')
-		       && current_user_can('update_themes');
+		return $this->canUpdatePlugins() && $this->canUpdateThemes();
 	}
 
 	public function canUpdatePlugins(): bool
