@@ -50,7 +50,6 @@ class Panopticon_Extensions extends \WP_REST_Controller
 	 */
 	public function getExtensions(WP_REST_Request $request)
 	{
-		// WordPress does not know what an autoloader is, so we get to load arbitrary .php files like heathens.
 		if (!function_exists('get_plugin_updates'))
 		{
 			require_once ABSPATH . 'wp-admin/includes/update.php';
@@ -150,8 +149,6 @@ class Panopticon_Extensions extends \WP_REST_Controller
 				}, array_keys($tList), array_values($tList)
 			),
 		];
-
-		// TODO Populate $return['themes']
 
 		return new WP_REST_Response($return);
 	}

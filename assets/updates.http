@@ -7,13 +7,9 @@ POST {{url}}v1/panopticon/update
 X-Panopticon-Token: {{token}}
 
 ### TODO Update plugin
-POST {{url}}v1/panopticon/update
+POST {{url}}v1/panopticon/update/plugin/foobar/foobar.php
 X-Panopticon-Token: {{token}}
-
-eid[]=foobar/foobar.php
 
 ### TODO Update theme
-POST {{url}}v1/panopticon/update
+POST {{url}}v1/panopticon/update/theme/sometheme
 X-Panopticon-Token: {{token}}
-
-eid[]=sometheme

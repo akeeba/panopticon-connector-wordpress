@@ -99,7 +99,6 @@ class Panopticon_Core extends WP_REST_Controller
 	 */
 	public function getUpdate(WP_REST_Request $request)
 	{
-		// WordPress does not know what an autoloader is, so we get to load arbitrary .php files like heathens.
 		if (!function_exists('get_preferred_from_update_core'))
 		{
 			require_once ABSPATH . 'wp-admin/includes/update.php';
@@ -207,7 +206,6 @@ class Panopticon_Core extends WP_REST_Controller
 		// If there is no version, try to find the fittest version.
 		if (empty($version))
 		{
-			// WordPress does not know what an autoloader is, so we get to load arbitrary .php files like heathens.
 			if (!function_exists('get_preferred_from_update_core'))
 			{
 				require_once ABSPATH . 'wp-admin/includes/update.php';
