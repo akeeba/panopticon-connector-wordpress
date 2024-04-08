@@ -35,6 +35,16 @@ class Panopticon_Updates extends WP_REST_Controller
 				],
 			]
 		);
+
+		register_rest_route(
+			$namespace, '/update/theme/(?P<theme>[^./]+(?:/[^./]+)?)', [
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [$this, 'updateTheme'],
+					'permission_callback' => [$this, 'canUpdateThemes'],
+				],
+			]
+		);
 	}
 
 	public function refreshUpdates(WP_REST_Request $request)
@@ -69,6 +79,8 @@ class Panopticon_Updates extends WP_REST_Controller
 
 	public function updatePlugin(WP_REST_Request $request)
 	{
+		$brokenWPWorkaround = false;
+
 		if (!function_exists('show_message'))
 		{
 			function show_message($message)
@@ -102,8 +114,6 @@ class Panopticon_Updates extends WP_REST_Controller
 		{
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
-
-		$brokenWPWorkaround = false;
 
 		if (!class_exists(Plugin_Upgrader::class))
 		{
@@ -141,6 +151,103 @@ class Panopticon_Updates extends WP_REST_Controller
 			)
 		);
 		$result   = $upgrader->upgrade($plugin);
+		@ob_end_clean();
+
+		if ($brokenWPWorkaround)
+		{
+			echo '###!#!--!-+=+-!--!#!###' . "\n";
+		}
+
+		if (is_wp_error($result))
+		{
+			return $result;
+		}
+
+		global $_panopticon_upgrade_messages;
+
+		return new WP_REST_Response(
+			[
+				'status'   => true,
+				'messages' => $_panopticon_upgrade_messages,
+			]
+		);
+	}
+
+	public function updateTheme(WP_REST_Request $request)
+	{
+		$brokenWPWorkaround = false;
+
+		if (!function_exists('show_message'))
+		{
+			function show_message($message)
+			{
+				global $_panopticon_upgrade_messages;
+
+				$_panopticon_upgrade_messages = ($_panopticon_upgrade_messages ?? '') . $message;
+			}
+		}
+		else
+		{
+			/**
+			 * WordPress' show_message function kills output buffering, then calls flush() for good measure, thus
+			 * ensuring that it is impossible to call it without breaking the heck out of the JSON API it itself
+			 * provides!
+			 */
+			$brokenWPWorkaround = true;
+		}
+
+		if (!function_exists('get_theme_updates'))
+		{
+			require_once ABSPATH . 'wp-admin/includes/update.php';
+		}
+
+		if (!function_exists('wp_get_themes'))
+		{
+			require_once ABSPATH . 'wp-includes/theme.php';
+		}
+
+		if (!function_exists('request_filesystem_credentials'))
+		{
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		if (!class_exists(Theme_Upgrader::class))
+		{
+			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+			require_once ABSPATH . 'wp-admin/includes/class-theme-upgrader.php';
+		}
+
+		if (!class_exists(Theme_Upgrader_Skin::class))
+		{
+			require_once ABSPATH . 'wp-admin/includes/class-theme-upgrader-skin.php';
+		}
+
+		$theme  = $request['theme'];
+		$themes = wp_get_themes();
+
+		if (!isset($themes[$theme]))
+		{
+			return new WP_Error('rest_theme_not_found', __('Theme not found.'), ['status' => 404]);
+		}
+
+		// Do I have an update?
+		$updates = get_theme_updates();
+
+		if (!isset($updates[$theme]))
+		{
+			return new WP_Error('no_such_update', 'There is no such update', ['status' => 409]);
+		}
+
+		// Install the plugin update
+		@ob_start();
+		$upgrader = new Theme_Upgrader(
+			new Theme_Upgrader_Skin(
+				[
+					'theme' => $theme,
+				]
+			)
+		);
+		$result   = $upgrader->upgrade($theme);
 		@ob_end_clean();
 
 		if ($brokenWPWorkaround)

@@ -6,10 +6,10 @@ X-Panopticon-Token: {{token}}
 POST {{url}}v1/panopticon/update
 X-Panopticon-Token: {{token}}
 
-### TODO Update plugin
+### Update plugin
 POST {{url}}v1/panopticon/update/plugin/safe-svg/safe-svg.php
 X-Panopticon-Token: {{token}}
 
-### TODO Update theme
-POST {{url}}v1/panopticon/update/theme/sometheme
+### Update theme
+POST {{url}}v1/panopticon/update/theme/twentynineteen
 X-Panopticon-Token: {{token}}
