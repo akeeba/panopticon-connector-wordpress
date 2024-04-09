@@ -47,6 +47,7 @@ class PanopticonPlugin
 		Panopticon_Extensions::class,
 		Panopticon_Updates::class,
 		Panopticon_AkeebaBackup::class,
+		Panopticon_AdminTools::class,
 	];
 
 	private static $apiPrefix = 'v1/panopticon';
