@@ -5,6 +5,12 @@
  * @license   https://www.gnu.org/licenses/agpl-3.0.txt GNU Affero General Public License, version 3 or later
  */
 
+use Akeeba\AdminTools\Admin\Helper\HtaccessManager;
+use Akeeba\AdminTools\Admin\Helper\Wordpress;
+use Akeeba\AdminTools\Admin\Model\HtaccessMaker;
+use Akeeba\AdminTools\Admin\Model\Scanner\Util\Session;
+use Akeeba\AdminTools\Admin\Model\Scans;
+use Akeeba\AdminTools\Admin\Model\UnblockIP;
 use Akeeba\AdminTools\Library\Input\Input;
 use Akeeba\AdminTools\Library\Mvc\Model\Model;
 
@@ -17,7 +23,7 @@ class Panopticon_AdminTools extends WP_REST_Controller
 	 */
 	public function register_routes()
 	{
-		$namespace = \PanopticonPlugin::getApiPrefix();
+		$namespace = PanopticonPlugin::getApiPrefix();
 
 		register_rest_route(
 			$namespace, '/admintools/unblock', [
@@ -68,6 +74,36 @@ class Panopticon_AdminTools extends WP_REST_Controller
 				],
 			]
 		);
+
+		register_rest_route(
+			$namespace, '/admintools/scanner/start', [
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [$this, 'scannerStart'],
+					'permission_callback' => [$this, 'canAccessAdminTools'],
+				],
+			]
+		);
+
+		register_rest_route(
+			$namespace, '/admintools/scanner/step', [
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [$this, 'scannerStep'],
+					'permission_callback' => [$this, 'canAccessAdminTools'],
+				],
+			]
+		);
+
+		register_rest_route(
+			$namespace, '/admintools/scans', [
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [$this, 'listScans'],
+					'permission_callback' => [$this, 'canAccessAdminTools'],
+				],
+			]
+		);
 	}
 
 	public function unblockIP(WP_REST_Request $request)
@@ -79,7 +115,7 @@ class Panopticon_AdminTools extends WP_REST_Controller
 			return new WP_Error('unblock_ip_required', 'You must provide an IP address', ['status' => 500]);
 		}
 
-		/** @var \Akeeba\AdminTools\Admin\Model\UnblockIP $model */
+		/** @var UnblockIP $model */
 		$model = $this->createModel('UnblockIP', $request);
 
 		return new WP_REST_Response(
@@ -157,7 +193,7 @@ class Panopticon_AdminTools extends WP_REST_Controller
 			include ABSPATH . 'wp-admin/includes/file.php';
 		}
 
-		/** @var \Akeeba\AdminTools\Admin\Model\HtaccessMaker $model */
+		/** @var HtaccessMaker $model */
 		$model = $this->createModel('HtaccessMaker', $request);
 
 		$model->nuke();
@@ -180,7 +216,69 @@ class Panopticon_AdminTools extends WP_REST_Controller
 		return new WP_REST_Response(
 			[
 				'exists'   => true,
-				'restored' => \Akeeba\AdminTools\Admin\Helper\HtaccessManager::getInstance()->updateFile(true) !== false,
+				'restored' => HtaccessManager::getInstance()->updateFile(true)
+				              !== false,
+			]
+		);
+	}
+
+	public function scannerStart(WP_REST_Request $request)
+	{
+		/** @var Scans $model */
+		$model = $this->createModel('Scans', $request);
+
+		$result            = (array) $model->startScan('api');
+		$result['session'] = $this->getScannerState();
+		$result['id']      = $result->id ?? $result->session['scanID'] ?? 0;
+
+		return new WP_REST_Response($result);
+	}
+
+	public function scannerStep(WP_REST_Request $request)
+	{
+		$sessionData = $request->get_body_params() ?? [];
+		$session     = Session::getInstance();
+
+		if (empty($sessionData))
+		{
+			return new WP_Error(500, 'You need to pass the session data');
+		}
+
+		foreach ($sessionData as $key => $value)
+		{
+			$session->set($key, $value);
+		}
+
+		/** @var Scans $model */
+		$model = $this->createModel('Scans', $request);
+
+		$result            = (array) $model->stepScan();
+		$result['session'] = $this->getScannerState();
+		$result['id']      = $result->id ?? $result->session['scanID'] ?? 0;
+
+		return new WP_REST_Response($result);
+	}
+
+	public function listScans(WP_REST_Request $request)
+	{
+		// Make sure we have limit query parameters
+		$queryParams = ($request->get_query_params() ?: [])['page'] ?? [];
+		$queryParams = is_array($queryParams) ? $queryParams : [];
+		$queryParams['limitstart'] = max(0, $queryParams['limitstart'] ?? 0);
+		$queryParams['limit'] = max(1, $queryParams['limit'] ?? Wordpress::get_page_limit());
+
+		$request->set_query_params($queryParams);
+
+		/** @var Scans $model */
+		$model = $this->createModel('Scans', $request);
+		$total = $model->getTotal();
+
+		return new WP_REST_Response(
+			[
+				'data' => $model->getItems(),
+				'meta' => [
+					'total-pages' => ceil($total / $queryParams['limit']),
+				],
 			]
 		);
 	}
@@ -215,11 +313,8 @@ class Panopticon_AdminTools extends WP_REST_Controller
 	{
 		$input = new Input(
 			array_merge(
-				$request->get_default_params() ?? [],
-				$request->get_body_params() ?? [],
-				$request->get_json_params() ?? [],
-				$request->get_query_params() ?? [],
-				$request->get_url_params() ?? []
+				$request->get_default_params() ?? [], $request->get_body_params() ?? [],
+				$request->get_json_params() ?? [], $request->get_query_params() ?? [], $request->get_url_params() ?? []
 			)
 		);
 
@@ -249,5 +344,18 @@ class Panopticon_AdminTools extends WP_REST_Controller
 		}
 
 		return null;
+	}
+
+	private function getScannerState(): array
+	{
+		$session = Session::getInstance();
+		$ret     = [];
+
+		foreach ($session->getKnownKeys() as $key)
+		{
+			$ret[$key] = $session->get($key, null);
+		}
+
+		return $ret;
 	}
 }

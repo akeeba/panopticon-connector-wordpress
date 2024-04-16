@@ -21,22 +21,22 @@ X-Panopticon-Token: {{token}}
 POST {{url}}/v1/panopticon/admintools/htaccess/enable
 X-Panopticon-Token: {{token}}
 
-### TODO Start the PHP File Change Scanner
+### Start the PHP File Change Scanner
 POST {{url}}/v1/panopticon/admintools/scanner/start
 X-Panopticon-Token: {{token}}
 
-### TODO Step through the PHP File Change Scanner
+### Step through the PHP File Change Scanner
 POST {{url}}/v1/panopticon/admintools/scanner/step
 X-Panopticon-Token: {{token}}
 
-### TODO Get a list of all scans, with their status
+### Get a list of all scans, with their status
 GET {{url}}/v1/panopticon/admintools/scans
 X-Panopticon-Token: {{token}}
 
 ### TODO Get a list of all scanned files (`scanalerts`) for a specific scan
-GET {{url}}/v1/panopticon/admintools/scan/27
-X-Panopticon-Token: {{token}}
+# GET {{url}}/v1/panopticon/admintools/scan/27
+# X-Panopticon-Token: {{token}}
 
 ### TODO Get information about a specific scanned file (`scanalert`)
-GET {{url}}/v1/panopticon/admintools/scanalert/29621
-X-Panopticon-Token: {{token}}
+# GET {{url}}/v1/panopticon/admintools/scanalert/29621
+# X-Panopticon-Token: {{token}}
