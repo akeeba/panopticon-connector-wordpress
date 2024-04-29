@@ -80,7 +80,9 @@ class Panopticon_Extensions extends \WP_REST_Controller
 		wp_update_themes();
 
 		// List plugins and their updates
-		$pList    = array_map(
+		$pList = get_plugins();
+		ksort($pList);
+		$pList = array_map(
 			function ($x) {
 				return [
 					'name'         => $x['Name'],
@@ -98,11 +100,14 @@ class Panopticon_Extensions extends \WP_REST_Controller
 					'title'        => $x['Title'],
 					'author_name'  => $x['AuthorName'],
 				];
-			}, get_plugins()
+			}, $pList
 		);
+
 		$pUpdates = get_plugin_updates();
 
 		// List themes and their updates
+		$tList = wp_get_themes();
+		ksort($tList);
 		$tList    = array_map(
 			function (WP_Theme $x) {
 				return [
@@ -128,13 +133,14 @@ class Panopticon_Extensions extends \WP_REST_Controller
 					'theme_root'     => $x->theme_root,
 					'theme_root_uri' => $x->theme_root_uri,
 				];
-			}, wp_get_themes()
+			}, $tList
 		);
 		$tUpdates = get_theme_updates();
 
 		$return = [
 			'plugins' => array_map(
 				function ($k, $v) use ($pUpdates) {
+					$v['id']     = $k;
 					$v['update'] = $pUpdates->{$k} ?? [];
 
 					return $v;
@@ -142,6 +148,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 			),
 			'themes'  => array_map(
 				function ($k, $v) use ($tUpdates) {
+					$v['id']     = $k;
 					$update      = $tUpdates[$k] ?? [];
 					$v['update'] = $update->update ?? [];
 
