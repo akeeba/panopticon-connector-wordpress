@@ -83,8 +83,10 @@ class Panopticon_Extensions extends \WP_REST_Controller
 		$pList = get_plugins();
 		ksort($pList);
 		$pList = array_map(
-			function ($x) {
+			function ($x, $id) {
 				return [
+					'id'           => $id,
+					'enabled'      => is_plugin_active($id),
 					'name'         => $x['Name'],
 					'plugin_uri'   => $x['PluginURI'],
 					'version'      => $x['Version'],
@@ -100,7 +102,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 					'title'        => $x['Title'],
 					'author_name'  => $x['AuthorName'],
 				];
-			}, $pList
+			}, array_values($pList), array_keys($pList)
 		);
 
 		$pUpdates = get_plugin_updates();
@@ -109,8 +111,9 @@ class Panopticon_Extensions extends \WP_REST_Controller
 		$tList = wp_get_themes();
 		ksort($tList);
 		$tList    = array_map(
-			function (WP_Theme $x) {
+			function ($k, WP_Theme $x) {
 				return [
+					'id'             => $k,
 					'name'           => $x->get('Name'),
 					'theme_uri'      => $x->get('ThemeURI'),
 					'description'    => $x->get('Description'),
@@ -133,27 +136,30 @@ class Panopticon_Extensions extends \WP_REST_Controller
 					'theme_root'     => $x->theme_root,
 					'theme_root_uri' => $x->theme_root_uri,
 				];
-			}, $tList
+			}, array_keys($tList), array_values($tList)
 		);
 		$tUpdates = get_theme_updates();
 
 		$return = [
 			'plugins' => array_map(
-				function ($k, $v) use ($pUpdates) {
-					$v['id']     = $k;
-					$v['update'] = $pUpdates->{$k} ?? [];
+				function ($v) use ($pUpdates) {
+					$possibleUpdate = $pUpdates[$v['id']] ?? null;
+
+					$v['update'] = (is_object($possibleUpdate) && is_object($possibleUpdate->update)
+						? $possibleUpdate->update : null);
 
 					return $v;
-				}, array_keys($pList), array_values($pList)
+				}, $pList
 			),
 			'themes'  => array_map(
-				function ($k, $v) use ($tUpdates) {
-					$v['id']     = $k;
-					$update      = $tUpdates[$k] ?? [];
-					$v['update'] = $update->update ?? [];
+				function ($v) use ($tUpdates) {
+					$possibleUpdate = $tUpdates[$v['id']] ?? null;
+
+					$v['update'] = $possibleUpdate instanceof WP_Theme
+						? $possibleUpdate->update : null;
 
 					return $v;
-				}, array_keys($tList), array_values($tList)
+				}, $tList
 			),
 		];
 
