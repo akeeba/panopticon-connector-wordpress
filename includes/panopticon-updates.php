@@ -136,7 +136,12 @@ class Panopticon_Updates extends WP_REST_Controller
 		// Do I have an update?
 		$updates = get_plugin_updates();
 
-		if (!isset($updates->{$plugin}))
+		if (!is_array($updates))
+		{
+			$updates = json_decode(json_encode($updates), true);
+		}
+
+		if (!isset($updates[$plugin]))
 		{
 			return new WP_Error('no_such_update', 'There is no such update', ['status' => 409]);
 		}
