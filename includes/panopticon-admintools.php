@@ -98,7 +98,7 @@ class Panopticon_AdminTools extends WP_REST_Controller
 		register_rest_route(
 			$namespace, '/admintools/scans', [
 				[
-					'methods'             => WP_REST_Server::CREATABLE,
+					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => [$this, 'listScans'],
 					'permission_callback' => [$this, 'canAccessAdminTools'],
 				],
@@ -109,6 +109,11 @@ class Panopticon_AdminTools extends WP_REST_Controller
 	public function unblockIP(WP_REST_Request $request)
 	{
 		$ip = $request['ip'];
+
+		if (is_array($ip))
+		{
+			$ip = array_pop($ip);
+		}
 
 		if (empty($ip) || !filter_var($ip, FILTER_VALIDATE_IP))
 		{
