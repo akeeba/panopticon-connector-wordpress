@@ -5,26 +5,25 @@
  * @license   https://www.gnu.org/licenses/agpl-3.0.txt GNU Affero General Public License, version 3 or later
  */
 
+/*
+Plugin Name: Akeeba Panopticon Connector for WordPress
+Plugin URI: https://github.com/akeeba/panopticon_connector_wp
+Description: Use your WordPress site with Akeeba Panopticon
+Version: 1.0.0
+Panopticon API: 100
+Requires PHP: 7.2
+Requires at least: 5.0
+Tested up to: 6.4
+Author: akeeba
+Author URI: http://www.akeeba.com
+License: AGPL-3.0+
+License URI: https://www.gnu.org/licenses/agpl-3.0.html
+GitHub Plugin URI: https://github.com/akeeba/panopticon_connector_wp
+Update URI: false
+*/
+
 defined('WPINC') || die;
 
-/**
- * @wordpress-plugin
- * Plugin Name:       Akeeba Panopticon Connector for WordPress
- * Plugin URI:        https://github.com/akeeba/panopticon_connector_wp
- * Description:       Use your WordPress site with Akeeba Panopticon
- * Version:           1.0.0
- * Release Date:      2023-11-15
- * Panopticon API:    100
- * Requires PHP:      7.2
- * Requires at least: 5.0
- * Tested up to:      6.4
- * Author:            akeeba
- * Author URI:        http://www.akeeba.com
- * License:           AGPL-3.0+
- * License URI:       https://www.gnu.org/licenses/agpl-3.0.html
- * GitHub Plugin URI: https://github.com/akeeba/panopticon_connector_wp
- * Update URI:        false
- */
 class PanopticonPlugin
 {
 	/**

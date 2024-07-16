@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+
+<!--
+  ~ @package   panopticon
+  ~ @copyright Copyright (c)2023-2024 Nikolaos Dionysopoulos / Akeeba Ltd
+  ~ @license   https://www.gnu.org/licenses/agpl-3.0.txt GNU Affero General Public License, version 3 or later
+  -->
+
+<project name="panopticon" description="Akeeba Panopticon Connector for WordPress" default="git">
+    <import file="${phing.dir}/../buildfiles/phing/common.xml"/>
+
+    <!-- Override properties set up in common.xml -->
+    <property name="dirs.root" value="${phing.dir}" override="true"/>
+    <property name="dirs.release" value="${dirs.root}/release" override="true"/>
+    <property name="dirs.templates" value="${phing.dir}/build/templates" override="true" />
+
+    <!-- Load externally defined properties -->
+    <property file="${phing.dir.common}/default.properties" override="true"/>
+    <property file="${phing.dir}/../build.properties" override="true"/>
+    <property file="${phing.dir}/../build.${host.os}.properties" override="true"/>
+    <property file="${phing.dir}/build/build.properties" override="true"/>
+    <property file="${phing.dir}/build/override.properties" override="true"/>
+    <property file="${phing.dir}/build.properties" override="true"/>
+    <property file="${phing.dir}/override.properties" override="true"/>
+
+    <!--
+    ====================================================================================================
+    File sets
+    ====================================================================================================
+    -->
+
+    <fileset dir="${dirs.root}" id="wpplugin" expandsymboliclinks="true">
+        <include name="includes/**"/>
+        <include name="vendor/**"/>
+
+        <include name="panopticon.php"/>
+        <include name="readme.txt"/>
+
+        <!-- Don't copy vendor stuff I do not need -->
+        <exclude name="app/vendor/bin/**"/>
+        <exclude name="app/vendor/composer/installers/**"/>
+        <exclude name="app/vendor/z4kn4fein/php-semver/.github/**"/>
+        <exclude name="app/vendor/z4kn4fein/php-semver/.gitattributes"/>
+        <exclude name="app/vendor/z4kn4fein/php-semver/.gitignore"/>
+        <exclude name="app/vendor/z4kn4fein/php-semver/phpcs.xml"/>
+        <exclude name="app/vendor/z4kn4fein/php-semver/phpunit.xml"/>
+    </fileset>
+
+    <!--
+    ====================================================================================================
+    Tasks - General
+    ====================================================================================================
+    -->
+    <target name="git" description="Makes only packages, not the documentation"
+            depends="new-release,composer-install,setup-properties,wp-package">
+    </target>
+
+    <target name="new-release" depends="composer-install,link">
+        <echo>Emptying release directory</echo>
+        <delete dir="${dirs.release}" quiet="true" includeemptydirs="true"/>
+        <mkdir dir="${dirs.release}"/>
+
+        <!-- Removing .DS_Store files -->
+        <echo>Removing .DS_Store files</echo>
+        <exec executable="sh" dir="${dirs.root}">
+            <arg value="killDS.sh"/>
+        </exec>
+    </target>
+
+    <target name="setup-properties" description="Set up version and build properties">
+        <!-- Initialize the build.date timestamp -->
+        <tstamp>
+            <format property="build.date" pattern="yyyy-MM-dd"/>
+        </tstamp>
+
+        <!-- Initialize the version if it's not set -->
+        <if>
+            <equals arg1="${version}" arg2="git"/>
+            <then>
+                <autoversion workingCopy="${dirs.root}" propertyName="version"/>
+            </then>
+        </if>
+
+        <filterchain id="standard-tokens">
+            <replacetokens begintoken="##" endtoken="##">
+                <token key="DATE" value="${build.date}"/>
+                <token key="VERSION" value="${version}"/>
+            </replacetokens>
+        </filterchain>
+    </target>
+
+    <!--
+    ====================================================================================================
+    Tasks - Documentation
+    ====================================================================================================
+    -->
+
+    <target name="documentation" description="Creates the documentation packages">
+        <echo>No documentation for the connector itself.</echo>
+    </target>
+
+    <!--
+    ====================================================================================================
+    Tasks - Installable packages
+    ====================================================================================================
+    -->
+    <target name="wp-package" description="Component package build"
+        depends="new-release,setup-properties">
+
+        <echo>Processing readme.txt</echo>
+        <!-- Process the readme.txt file -->
+        <copy file="${dirs.templates}/readme.txt" tofile="${dirs.root}/readme.txt" overwrite="true">
+            <filterchain refid="standard-tokens"/>
+        </copy>
+
+        <echo>Creating plugin entry point file</echo>
+        <wordpressentrypoint
+                file="${dirs.root}/panopticon.php"
+                name="Akeeba Panopticon Connector for WordPress"
+                version="${version}"
+        />
+
+        <echo>Making package</echo>
+        <zipme basedir="${dirs.root}" destfile="${dirs.release}/panopticon-${version}.zip"
+               includeemptydirs="true" prefix="panopticon">
+            <fileset refid="wpplugin"/>
+        </zipme>
+    </target>
+
+</project>

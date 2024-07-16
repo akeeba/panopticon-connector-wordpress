@@ -44,7 +44,7 @@ Please note that using these rules will prevent [WP-CLI](https://wp-cli.org/) fr
 
 ## 📋 CHANGELOG
 
-* ✨ Troubleshooting aid for API application errors when connecting a Panopticon site
+* Initial release
 
 Legend:
 * 🚨 Security update
