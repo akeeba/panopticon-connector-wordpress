@@ -13,7 +13,7 @@ Version: 1.0.0
 Panopticon API: 100
 Requires PHP: 7.2
 Requires at least: 5.0
-Tested up to: 6.4
+Tested up to: 6.6
 Author: akeeba
 Author URI: http://www.akeeba.com
 License: AGPL-3.0+

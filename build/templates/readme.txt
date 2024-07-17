@@ -3,7 +3,7 @@ Contributors:      nikosdion
 Donate link:       https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=10903325
 Tags:              panopticon, connector, backup, security
 Requires at least: 5.0
-Tested up to:      6.4
+Tested up to:      6.6
 Requires PHP:      7.2
 Stable tag:        ##VERSION##
 License:           AGPL-3.0-or-later
