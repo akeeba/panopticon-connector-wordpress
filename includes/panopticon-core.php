@@ -137,6 +137,9 @@ class Panopticon_Core extends WP_REST_Controller
 			$needsUpdate   = false;
 		}
 
+        $currentVersion = $this->normalizeVersion($currentVersion);
+        $latestVersion  = $this->normalizeVersion($latestVersion);
+
 		// Return something sensible and predictable our code can query easily.
 		return new WP_REST_Response(
 			[
@@ -369,6 +372,68 @@ class Panopticon_Core extends WP_REST_Controller
 	{
 		return current_user_can('update_core');
 	}
+
+    /**
+     * Normalize a WordPress version number to the SemVer specification.
+     *
+     * WordPress skips the patch version number if it's 0, i.e. they use 6.6 instead of 6.6.0. This is an invalid
+     * version number, causing the 3rd party version parsing library to mark it as a "development" release.
+     *
+     * This method detects version numbers like that, normalising them to the SemVer specification.
+     *
+     * @param   string  $versionString
+     * @return  string
+     */
+    private function normalizeVersion(string $versionString): string
+    {
+        /**
+         * WordPress fails to follow semantic versioning. They treat .0 version specifiers as optional. For example,
+         * they do version 6.6 not 6.6.0. The patch version specified is never optional! Semantic versions always have
+         * three parts. We are hereby fixing this.
+         */
+        $parts = explode('.', $versionString);
+
+        if (count($parts) >= 3)
+        {
+            return $versionString;
+        }
+
+        $suffix   = '';
+        $lastPart = $parts[count($parts) - 1];
+        $temp     = explode(' ', $lastPart, 2);
+
+        if (count($temp) === 2)
+        {
+            $lastPart = $temp[0];
+            $suffix = $temp[1];
+        }
+        else
+        {
+            $temp = explode('-', $lastPart, 2);
+
+            if (count($temp) === 2)
+            {
+                $lastPart = $temp[0];
+                $suffix = $temp[1];
+            }
+        }
+
+        $parts[count($parts) - 1] = $lastPart;
+
+        for ($i = count($parts); $i < 3; $i++)
+        {
+            $parts[] = '0';
+        }
+
+        $versionString = implode('.', $parts);
+
+        if ($suffix)
+        {
+            $versionString .= '-' . $suffix;
+        }
+
+        return $versionString;
+    }
 
 	/**
 	 * Detects the stability of a version string
