@@ -7,7 +7,7 @@
 
 /*
 Plugin Name: Akeeba Panopticon Connector for WordPress
-Plugin URI: https://github.com/akeeba/panopticon_connector_wp
+Plugin URI: https://github.com/akeeba/panopticon-connector-wordpress
 Description: Use your WordPress site with Akeeba Panopticon
 Version: 1.0.1
 Panopticon API: 100
@@ -18,7 +18,7 @@ Author: akeeba
 Author URI: http://www.akeeba.com
 License: AGPL-3.0+
 License URI: https://www.gnu.org/licenses/agpl-3.0.html
-GitHub Plugin URI: https://github.com/akeeba/panopticon_connector_wp
+GitHub Plugin URI: https://github.com/akeeba/panopticon-connector-wordpress
 Update URI: false
 */
 
