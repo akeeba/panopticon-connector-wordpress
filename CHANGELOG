@@ -1,3 +1,7 @@
+Panopticon Connector for WordPress 1.0.2
+================================================================================
+# [HIGH] Does not recognise Akeeba Backup version before 8.0
+
 Panopticon Connector for WordPress 1.0.1
 ================================================================================
 # [LOW] New version families are detected as development, not stable, versions

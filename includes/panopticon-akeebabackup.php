@@ -38,16 +38,24 @@ class Panopticon_AkeebaBackup extends WP_REST_Controller
 			'endpoints' => [],
 		];
 
-		if (!defined('AKEEBABACKUPWP_ALREADY_LOADED'))
+		if (!defined('AKEEBABACKUPWP_ALREADY_LOADED') && !defined('AKEEBABACKUP_VERSION'))
 		{
 			return new WP_REST_Response($ret);
 		}
 
+		$akeebaBackupVersion = defined('AKEEBABACKUP_VERSION') ? AKEEBABACKUP_VERSION : '0.0.0';
+
+		if (version_compare($akeebaBackupVersion, '8.0.0', 'lt'))
+		{
+			\Akeeba\Engine\Factory::getSecureSettings()->setKeyFilename('secretkey.php');
+		}
+
 		$ret['installed'] = true;
-		$ret['version']   = defined('AKEEBABACKUP_VERSION') ? AKEEBABACKUP_VERSION : '0.0.0';
+		$ret['version']   = $akeebaBackupVersion;
 		$ret['api']       = $this->getMaxApiVersion();
-		$ret['secret']    = \Akeeba\Engine\Platform::getInstance()
-			->get_platform_configuration_option('frontend_secret_word', '');
+		$ret['secret']    = \Akeeba\Engine\Platform::getInstance()->get_platform_configuration_option(
+			'frontend_secret_word', ''
+		);
 		$ret['endpoints'] = $this->getEndpoints();
 
 		return new WP_REST_Response($ret);
@@ -101,6 +109,18 @@ class Panopticon_AkeebaBackup extends WP_REST_Controller
 		return 1;
 	}
 
+	private function getMinApiVersion()
+	{
+		$version = defined('AKEEBABACKUP_VERSION') ? AKEEBABACKUP_VERSION : '0.0.0';
+
+		if ($version === '0.0.0')
+		{
+			return 2;
+		}
+
+		return version_compare($version, '8.0.0', 'ge') ? 2 : 1;
+	}
+
 	/**
 	 * Get the Akeeba Backup endpoint for the currently installed Akeeba Backup version.
 	 *
@@ -111,54 +131,49 @@ class Panopticon_AkeebaBackup extends WP_REST_Controller
 	{
 		$version = defined('AKEEBABACKUP_VERSION') ? AKEEBABACKUP_VERSION : '0.0.0';
 		$maxApi  = $this->getMaxApiVersion();
+		$minApi  = $this->getMinApiVersion();
 		$dirName = \AkeebaBackupWP::$dirName;
+
+		$v1Endpoint = version_compare($version, '7.4.0', 'ge')
+			? sprintf(
+				"%s/wp-content/plugins/%s/app/index.php?option=com_akeeba&view=json&format=raw",
+				rtrim(home_url(), '/'),
+				$dirName
+			)
+			: sprintf(
+				"%s/wp-content/plugins/%s/app/index.php?option=com_akeeba&view=api&format=raw",
+				rtrim(home_url(), '/'),
+				$dirName
+			);
+
+		$v2Endpoint = version_compare($version, '7.7.1', 'ge')
+			? sprintf(
+				"%s/wp-admin/admin-ajax.php?action=akeebabackup_api&option=com_akeeba&view=api&format=raw",
+				rtrim(home_url(), '/')
+			)
+			: sprintf(
+				"%s/wp-content/plugins/%s/app/index.php?option=com_akeeba&view=api&format=raw",
+				rtrim(home_url(), '/'),
+				$dirName
+			);
 
 		if ($maxApi === 1)
 		{
-			if (version_compare($version, '7.4.0', 'ge'))
-			{
-				return [
-					'v1' => [
-						sprintf(
-							"%s/wp-content/plugins/%s/app/index.php?option=com_akeeba&view=json&format=raw",
-							rtrim(home_url(), '/'),
-							$dirName
-						),
-					],
-				];
-			}
-
 			return [
-				'v1' => [
-					sprintf(
-						"%s/wp-content/plugins/%s/app/index.php?option=com_akeeba&view=api&format=raw",
-						rtrim(home_url(), '/'),
-						$dirName
-					),
-				],
+				'v1' => [$v1Endpoint],
 			];
 		}
 
-		if (version_compare($version, '7.7.1', 'ge'))
+		if ($minApi === 1)
 		{
 			return [
-				'v2' => [
-					sprintf(
-						"%s/wp-admin/admin-ajax.php?action=akeebabackup_api&option=com_akeeba&view=api&format=raw",
-						rtrim(home_url(), '/')
-					),
-				],
+				'v1' => [$v1Endpoint],
+				'v2' => [$v2Endpoint],
 			];
 		}
 
 		return [
-			'v2' => [
-				sprintf(
-					"%s/wp-content/plugins/%s/app/index.php?option=com_akeeba&view=api&format=raw",
-					rtrim(home_url(), '/'),
-					$dirName
-				),
-			],
+			'v2' => [$v2Endpoint],
 		];
 	}
 
