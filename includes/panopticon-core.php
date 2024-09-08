@@ -106,7 +106,7 @@ class Panopticon_Core extends WP_REST_Controller
 
 		if (!class_exists('WP_Site_Health_Auto_Updates'))
 		{
-			require_once ABSPATH . 'wp-admin/includes/class-wp-site-health-auto-updates.php';
+			@include_once ABSPATH . 'wp-admin/includes/class-wp-site-health-auto-updates.php';
 		}
 
 		// Get the parameters.
@@ -216,7 +216,7 @@ class Panopticon_Core extends WP_REST_Controller
 
 			if (!class_exists('WP_Site_Health_Auto_Updates'))
 			{
-				require_once ABSPATH . 'wp-admin/includes/class-wp-site-health-auto-updates.php';
+				@include_once ABSPATH . 'wp-admin/includes/class-wp-site-health-auto-updates.php';
 			}
 
 			// Make sure the update info isn't stale
