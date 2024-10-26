@@ -24,8 +24,15 @@ Update URI: false
 
 defined('WPINC') || die;
 
+if (!trait_exists('Panopticon_Options_Trait', false))
+{
+	require_once __DIR__ . '/includes/panopticon-options-trait.php';
+}
+
 class PanopticonPlugin
 {
+	use Panopticon_Options_Trait;
+
 	/**
 	 * Object instance for Singleton implementation
 	 *
@@ -293,34 +300,59 @@ class PanopticonPlugin
 	 */
 	public function adminPage(): void
 	{
+		// Add error/update messages
+
+		// Check if the user have submitted the settings
+		// WordPress will add the "settings-updated" $_GET parameter to the url
+		if (isset($_GET['settings-updated']))
+		{
+			// add settings saved message with the class of "updated"
+			add_settings_error('panopticon_messages', 'panopticon_message', 'Settings Saved', 'updated');
+		}
+
+		// Show error/update messages
+		settings_errors('panopticon_messages');
+
 		?>
-		<div class="card-XXX">
-			<h2 class="title">
-				<?= __('Connection information', 'panopticon') ?>
-			</h2>
-			<table>
-				<tr>
-					<th scope="row">
-						<?= __('Endpoint URL', 'panopticon') ?>
-					</th>
-					<td>
-						<code>
-							<?= get_rest_url() ?>
-						</code>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row">
-						<?= __('Token', 'panopticon') ?>
-					</th>
-					<td>
-						<code>
-							<?= $this->getToken() ?>
-						</code>
-					</td>
-				</tr>
-			</table>
-		</div>
+		<h2 class="title">
+			<?= __('Connection information', 'panopticon') ?>
+		</h2>
+		<table>
+			<tr>
+				<th scope="row">
+					<?= __('Endpoint URL', 'panopticon') ?>
+				</th>
+				<td>
+					<code style="background: none">
+						<?= get_rest_url() ?>
+					</code>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">
+					<?= __('Token', 'panopticon') ?>
+				</th>
+				<td>
+					<code style="background: none">
+						<?= $this->getToken() ?>
+					</code>
+				</td>
+			</tr>
+		</table>
+
+		<hr style="margin: 1.5em 0"/>
+
+		<form action="options.php" method="post">
+			<?php
+			// Output security fields for the registered setting "wporg"
+			settings_fields('panopticon');
+			// Output setting sections, and their fields
+			// (sections are registered for "panopticon", each field is registered to a specific section)
+			do_settings_sections('panopticon');
+			// output save settings button
+			submit_button('Save Settings');
+			?>
+		</form>
 		<?php
 	}
 
@@ -468,6 +500,9 @@ call_user_func(
 		// Register admin hooks
 		add_action('admin_menu', [$panopticon, 'registerAdminMenu']);
 		add_filter('determine_current_user', [$panopticon, 'authorizeAPIUser'], 20);
+
+		// Register the options page
+		$panopticon->initOptionsPageHandling();
 
 		// WP-CLI integration
 		if (defined('WP_CLI') && WP_CLI)

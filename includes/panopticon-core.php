@@ -140,6 +140,8 @@ class Panopticon_Core extends WP_REST_Controller
         $currentVersion = $this->normalizeVersion($currentVersion);
         $latestVersion  = $this->normalizeVersion($latestVersion);
 
+		$reportSysinfo = get_option('panopticon_options')['panopticon_field_sysinfo'] ?? 1;
+
 		// Return something sensible and predictable our code can query easily.
 		return new WP_REST_Response(
 			[
@@ -174,7 +176,7 @@ class Panopticon_Core extends WP_REST_Controller
 					'all_writeable'         => !$checkWriteableFiles || $this->allFilesWriteable(),
 				],
 				'admintools'          => $this->getAdminToolsInformation(),
-				'serverInfo'          => (new Panopticon_Server_Info())(),
+				'serverInfo'          => $reportSysinfo ? (new Panopticon_Server_Info())() : null,
 			], 200
 		);
 	}
