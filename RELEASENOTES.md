@@ -44,7 +44,9 @@ Please note that using these rules will prevent [WP-CLI](https://wp-cli.org/) fr
 
 ## 📋 CHANGELOG
 
-* Initial release
+* ✏️ Option to disable system information collection.
+* 🐞 Does not recognise Akeeba Backup version before 8.0
+* 🐞 Compatibility issues with ancient WordPress 5.0 to 5.5 versions
 
 Legend:
 * 🚨 Security update
