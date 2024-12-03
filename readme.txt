@@ -5,7 +5,7 @@ Tags:              panopticon, connector, backup, security
 Requires at least: 5.0
 Tested up to:      6.6
 Requires PHP:      7.2
-Stable tag:        1.0.2-dev202409071431-reveeaa6d7
+Stable tag:        1.0.2
 License:           AGPL-3.0-or-later
 License URI:       https://www.gnu.org/licenses/agpl-3.0.html
 
