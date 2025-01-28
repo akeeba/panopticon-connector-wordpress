@@ -1,3 +1,7 @@
+### Core WordPress
+GET {{url}}wp/v2/plugins?per_page=100000
+X-Panopticon-Token: {{token}}
+
 ### Get update information
 GET {{url}}v1/panopticon/core/update
 X-Panopticon-Token: {{token}}
