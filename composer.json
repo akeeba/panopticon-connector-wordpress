@@ -38,6 +38,7 @@
 		"ext-zend-opcache": "*"
 	},
 	"config": {
+		"optimize-autoloader": false,
 		"allow-plugins": {
 			"composer/installers": true,
 			"optimize-autoloader": true,
