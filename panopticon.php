@@ -34,6 +34,30 @@ class PanopticonPlugin
 	use Panopticon_Options_Trait;
 
 	/**
+	 * Transient with the update information cache for this plugin.
+	 *
+	 * @var   string
+	 * @since 1.1.0
+	 */
+	private const UPDATE_CACHE_KEY = 'panopticon_custom_update_cache';
+
+	/**
+	 * URL with the plugin update information.
+	 *
+	 * @var   string
+	 * @since 1.1.0
+	 */
+	private const UPDATE_URL = 'https://raw.githubusercontent.com/akeeba/panopticon-connector-wordpress/refs/heads/main/update.json';
+
+	/**
+	 * Update cache expiration time, in seconds. Default: 86400 (one day).
+	 *
+	 * @var   int
+	 * @since 1.1.0
+	 */
+	private const UPDATE_EXPIRES_IN = 86400;
+
+	/**
 	 * Object instance for Singleton implementation
 	 *
 	 * @var   null|self
@@ -340,7 +364,7 @@ class PanopticonPlugin
 			</tr>
 		</table>
 
-		<hr style="margin: 1.5em 0"/>
+		<hr style="margin: 1.5em 0" />
 
 		<form action="options.php" method="post">
 			<?php
@@ -376,12 +400,153 @@ class PanopticonPlugin
 		return hash('sha256', $token . ':' . $salt);
 	}
 
-	public function registerWpCliCommands() {
+	public function registerWpCliCommands()
+	{
 		require_once __DIR__ . '/includes/panopticon-cli-namespace.php';
 		require_once __DIR__ . '/includes/panopticon-cli-token.php';
 
 		WP_CLI::add_command('panopticon', Panopticon_Cli_Namespace::class);
 		WP_CLI::add_command('panopticon token', Panopticon_Cli_Token::class);
+	}
+
+	/**
+	 * Returns information about the installed plugin back to WordPress.
+	 *
+	 * This allows WordPress to display information about our plugin in the wp-admin Plugins page.
+	 *
+	 * Hooks into the `plugins_api` filter.
+	 *
+	 * @param   false|object|array  $result  The result object or array. Default false.
+	 * @param   string              $action  The type of information being requested from the Plugin Installation API.
+	 * @param   array|object        $args    Plugin API arguments.
+	 *
+	 * @return  false|object|array
+	 * @since   1.1.0
+	 * @link    https://developer.wordpress.org/reference/hooks/plugins_api/
+	 */
+	public function onGetPluginInformation($result, $action, $args)
+	{
+		// Only respond to a request for information about our plugin.
+		if ($action !== 'plugin_information' || $args->slug !== plugin_basename(__DIR__))
+		{
+			return $result;
+		}
+
+		// Get the cached (or freshly fetched) update information.
+		$remote = $this->getUpdateInformation();
+
+		// Could not retrieve update information; bail out.
+		if (!$remote)
+		{
+			return $result;
+		}
+
+		return (object) [
+			'name'           => $remote->name,
+			'slug'           => $remote->slug,
+			'version'        => $remote->version,
+			'tested'         => $remote->tested,
+			'requires'       => $remote->requires,
+			'author'         => $remote->author,
+			'author_profile' => $remote->author_profile,
+			'download_link'  => $remote->download_url,
+			'trunk'          => $remote->download_url,
+			'requires_php'   => $remote->requires_php,
+			'last_updated'   => $remote->last_updated,
+			// NB! The "sections" property is an ARRAY (**NOT** an object).
+			'sections'       => [
+				'description'  => $remote->sections->description,
+				'installation' => $remote->sections->installation,
+				'changelog'    => $remote->sections->changelog,
+
+			],
+			// NB! The "banners" property is an ARRAY (**NOT** an object).
+			'banners'        => [
+				'low'  => $remote->banners->low,
+				'high' => $remote->banners->high,
+			],
+		];
+	}
+
+	/**
+	 * Handles the update checks for the plugin by modifying WordPress' update_plugins transient.
+	 *
+	 * This allows WordPress to find and install updates for our plugin, even though we don't host it on the WordPress
+	 * Plugins Directory.
+	 *
+	 * Hooks into the `site_transient_update_plugins` filter.
+	 *
+	 * @param   object  $transient  The transient object containing information about available plugin updates.
+	 *
+	 * @return  object  The modified transient object with added plugin update information if applicable.
+	 * @since   1.1.0
+	 * @link    https://developer.wordpress.org/reference/hooks/site_transient_transient/
+	 * @link    https://make.wordpress.org/core/2020/07/30/recommended-usage-of-the-updates-api-to-support-the-auto-updates-ui-for-plugins-and-themes-in-wordpress-5-5/
+	 */
+	public function onUpdatePlugins($transient)
+	{
+		if (!is_object($transient) || empty($transient->checked))
+		{
+			return $transient;
+		}
+
+		$remote = $this->getUpdateInformation();
+
+		if (!$remote)
+		{
+			return $transient;
+		}
+
+		if (version_compare($this->version, $remote->version, 'ge')
+		    || version_compare($remote->requires, get_bloginfo('version'), 'gt')
+		    || version_compare($remote->requires_php, PHP_VERSION, 'gt'))
+		{
+			return $transient;
+		}
+
+		$pluginBasename                       = plugin_basename(__FILE__);
+		$transient->response[$pluginBasename] = ((object) [
+			'slug'        => plugin_basename(__DIR__),
+			'plugin'      => $pluginBasename,
+			'new_version' => $remote->version,
+			'tested'      => $remote->tested,
+			'package'     => $remote->download_url,
+		]);
+
+		return $transient;
+	}
+
+	/**
+	 * Reset the update cache when WordPress finishes updating any plugin.
+	 *
+	 * Hooks into the `upgrader_process_complete` hook.
+	 *
+	 * @param   WP_Upgrader  $upgrader  The Plugin_Upgrader instance. Note we static type on the superclass.
+	 * @param   array        $options   Array of bulk item update data.
+	 *
+	 * @return  void
+	 * @since   1.1.0
+	 * @link    https://developer.wordpress.org/reference/hooks/upgrader_process_complete/
+	 */
+	public function onUpdateComplete($upgrader, $options)
+	{
+		// Sanity check
+		if (!is_array($options))
+		{
+			return;
+		}
+
+		// Safe accessors to array elements
+		$action = $options['action'] ?? '';
+		$type   = $options['type'] ?? '';
+
+		// We expect to see a plugin update here.
+		if ($action !== 'update' || $type !== 'plugin')
+		{
+			return;
+		}
+
+		delete_transient(self::UPDATE_CACHE_KEY);
 	}
 
 	/**
@@ -486,6 +651,37 @@ class PanopticonPlugin
 			}
 		}
 	}
+
+	/**
+	 * Get the cached update information for this plugin, fetching and caching it anew when necessary.
+	 *
+	 * @return  false|object
+	 * @since   1.1.0
+	 */
+	private function getUpdateInformation()
+	{
+		$remote = get_transient(self::UPDATE_CACHE_KEY);
+
+		if ($remote !== false)
+		{
+			return json_decode($remote) ?: false;
+		}
+
+		$remote = wp_remote_get(self::UPDATE_URL, ['timeout' => 10]);
+
+		if (is_wp_error($remote)
+		    || wp_remote_retrieve_response_code($remote) !== 200
+		    || empty(wp_remote_retrieve_body($remote)))
+		{
+			return false;
+		}
+
+		$body = wp_remote_retrieve_body($remote);
+
+		set_transient(self::UPDATE_CACHE_KEY, $body, DAY_IN_SECONDS);
+
+		return json_decode($body) ?: false;
+	}
 }
 
 call_user_func(
@@ -503,6 +699,11 @@ call_user_func(
 
 		// Register the options page
 		$panopticon->initOptionsPageHandling();
+
+		// Plugin self-update filters and hooks
+		add_filter('plugins_api', [$panopticon, 'onGetPluginInformation'], 20, 3);
+		add_filter('site_transient_update_plugins', [$panopticon, 'onUpdatePlugins']);
+		add_action('upgrader_process_complete', [$panopticon, 'onUpdateComplete'], 10, 2);
 
 		// WP-CLI integration
 		if (defined('WP_CLI') && WP_CLI)
