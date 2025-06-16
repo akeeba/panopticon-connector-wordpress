@@ -1,6 +1,7 @@
 Panopticon Connector for WordPress 1.1.0
 ================================================================================
 + Plugin self-update
+# [HIGH] Updated plugins were not re-activated since probably WP 6.0
 
 Panopticon Connector for WordPress 1.0.2
 ================================================================================

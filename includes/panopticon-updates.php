@@ -146,6 +146,10 @@ class Panopticon_Updates extends WP_REST_Controller
 			return new WP_Error('no_such_update', 'There is no such update', ['status' => 409]);
 		}
 
+		// Is the plugin activated?
+		$isActivated       = is_plugin_active($plugin) || is_plugin_active_for_network($plugin);
+		$isNetworkActivted = is_plugin_active_for_network($plugin);
+
 		// Install the plugin update
 		@ob_start();
 		$upgrader = new Plugin_Upgrader(
@@ -166,6 +170,12 @@ class Panopticon_Updates extends WP_REST_Controller
 		if (is_wp_error($result))
 		{
 			return $result;
+		}
+
+		// Re-activate plugin
+		if ($isActivated)
+		{
+			activate_plugin($plugin, '', $isNetworkActivted, false);
 		}
 
 		global $_panopticon_upgrade_messages;
