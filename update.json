@@ -6,7 +6,7 @@
 	"version": "1.1.0",
 	"download_url": "https://github.com/akeeba/panopticon-connector-wordpress/releases/download/1.1.0/panopticon-1.1.0.zip",
 	"requires": "5.0",
-	"tested": "6.7",
+	"tested": "6.8",
 	"requires_php": "7.2",
 	"last_updated": "2025-03-04 15:25:00",
 	"sections": {
