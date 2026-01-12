@@ -147,8 +147,9 @@ class Panopticon_Updates extends WP_REST_Controller
 		}
 
 		// Is the plugin activated?
-		$isActivated       = is_plugin_active($plugin) || is_plugin_active_for_network($plugin);
-		$isNetworkActivted = is_plugin_active_for_network($plugin);
+		$isPluginActivated = is_plugin_active($plugin);
+		$isNetworkActivated = is_multisite() && is_network_only_plugin($plugin)
+		                      && is_plugin_active_for_network($plugin);
 
 		// Install the plugin update
 		@ob_start();
@@ -173,9 +174,9 @@ class Panopticon_Updates extends WP_REST_Controller
 		}
 
 		// Re-activate plugin
-		if ($isActivated)
+		if ($isPluginActivated || $isNetworkActivated)
 		{
-			activate_plugin($plugin, '', $isNetworkActivted, false);
+			activate_plugin($plugin, '', $isNetworkActivated, false);
 		}
 
 		global $_panopticon_upgrade_messages;

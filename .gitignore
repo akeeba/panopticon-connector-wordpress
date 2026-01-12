@@ -1,5 +1,11 @@
+### Private and temporary files
 /assets/http-client.private.env.json
 
+### Release files
 /release
 
+### Composer
 /vendor
+
+### phpStorm
+/.idea/laravel-idea.xml
