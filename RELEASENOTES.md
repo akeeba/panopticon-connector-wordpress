@@ -8,12 +8,12 @@ This is the connector plugin for [Akeeba Panopticon](https://github.com/akeeba/p
 
 ## 🔎 Release highlights
 
-* Initial release
+* 🐞 Updating plugins would result in the updated plugin not being (re)activated
 
 ## 🖥️ System Requirements
 
-* WordPress 5.0 or later
-* PHP versions 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, and 8.3
+* WordPress 5.0 or later; WordPress 6.3 or later recommended.
+* PHP versions 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 8.4, and 8.5; PHP 8.3 or later recommended.
 
 ## 🧑🏽‍💻 Important note about the WordPress REST API
 
@@ -44,9 +44,7 @@ Please note that using these rules will prevent [WP-CLI](https://wp-cli.org/) fr
 
 ## 📋 CHANGELOG
 
-* ✏️ Option to disable system information collection.
-* 🐞 Does not recognise Akeeba Backup version before 8.0
-* 🐞 Compatibility issues with ancient WordPress 5.0 to 5.5 versions
+* 🐞 Updating plugins would result in the updated plugin not being (re)activated
 
 Legend:
 * 🚨 Security update
