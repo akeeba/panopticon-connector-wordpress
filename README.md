@@ -11,6 +11,14 @@ Allows you to connect WordPress sites to [Akeeba Panopticon](https://github.com/
 * (Optional) Akeeba Backup Professional 7.x or later — to enable backup features
 * (Optional) Admin Tools Professional 1.2.x or later — to enable security features
 
+## Configuration
+
+### Allow Remote Extension Installation
+
+The connector includes an option to allow or disallow remote extension installation from Panopticon. This option is found in the WordPress Settings page (Settings > Panopticon).
+
+When set to **Yes** (the default), Panopticon can remotely install plugins and themes on the site using the mass extension installation feature. When set to **No**, the site will refuse remote installation requests and report the status as "Disabled" in the installation summary.
+
 ## License
 
 Akeeba Panopticon Connector for WordPress

@@ -209,6 +209,18 @@ class Panopticon_Extensions extends \WP_REST_Controller
 	 */
 	public function installExtensionFromUrl(WP_REST_Request $request)
 	{
+		// Check if remote extension installation is allowed
+		$options = get_option('panopticon_options');
+
+		if (empty($options['panopticon_field_allow_remote_install'] ?? 1))
+		{
+			return new WP_Error(
+				'remote_install_disabled',
+				'Remote extension installation is disabled on this site.',
+				['status' => 403]
+			);
+		}
+
 		// Get the URL parameter from form data
 		$url = $request->get_param('url');
 
@@ -276,6 +288,18 @@ class Panopticon_Extensions extends \WP_REST_Controller
 	 */
 	public function installExtensionFromUpload(WP_REST_Request $request)
 	{
+		// Check if remote extension installation is allowed
+		$options = get_option('panopticon_options');
+
+		if (empty($options['panopticon_field_allow_remote_install'] ?? 1))
+		{
+			return new WP_Error(
+				'remote_install_disabled',
+				'Remote extension installation is disabled on this site.',
+				['status' => 403]
+			);
+		}
+
 		// Get the filename parameter
 		$filename = $request->get_param('filename');
 
@@ -519,20 +543,38 @@ class Panopticon_Extensions extends \WP_REST_Controller
 		if (is_wp_error($activate_result))
 		{
 			return new WP_REST_Response([
-				'success'  => true,
-				'type'     => 'plugin',
-				'plugin'   => $plugin_file,
-				'activated' => false,
-				'message'  => 'Plugin installed but activation failed: ' . $activate_result->get_error_message(),
+				'data' => [
+					'type'       => 'extensioninstall',
+					'id'         => 0,
+					'attributes' => [
+						'id'       => 0,
+						'status'   => true,
+						'messages' => [
+							[
+								'message' => 'Plugin installed but activation failed: ' . $activate_result->get_error_message(),
+								'type'    => 'warning',
+							],
+						],
+					],
+				],
 			]);
 		}
 
 		return new WP_REST_Response([
-			'success'  => true,
-			'type'     => 'plugin',
-			'plugin'   => $plugin_file,
-			'activated' => true,
-			'message'  => 'Plugin installed and activated successfully',
+			'data' => [
+				'type'       => 'extensioninstall',
+				'id'         => 0,
+				'attributes' => [
+					'id'       => 0,
+					'status'   => true,
+					'messages' => [
+						[
+							'message' => 'Plugin installed and activated successfully',
+							'type'    => 'message',
+						],
+					],
+				],
+			],
 		]);
 	}
 
@@ -586,11 +628,20 @@ class Panopticon_Extensions extends \WP_REST_Controller
 		switch_theme($theme_info->get_stylesheet());
 
 		return new WP_REST_Response([
-			'success'  => true,
-			'type'     => 'theme',
-			'theme'    => $theme_info->get_stylesheet(),
-			'activated' => true,
-			'message'  => 'Theme installed and activated successfully',
+			'data' => [
+				'type'       => 'extensioninstall',
+				'id'         => 0,
+				'attributes' => [
+					'id'       => 0,
+					'status'   => true,
+					'messages' => [
+						[
+							'message' => 'Theme installed and activated successfully',
+							'type'    => 'message',
+						],
+					],
+				],
+			],
 		]);
 	}
 

@@ -71,6 +71,37 @@ HTML;
 	}
 
 	/**
+	 * Render a field: allow_remote_install
+	 *
+	 * @param   array  $args
+	 *
+	 * @return  void
+	 * @since   1.3.0
+	 */
+	public function renderFieldAllowRemoteInstall(array $args = [])
+	{
+		$options = get_option('panopticon_options');
+		$id      = esc_attr($args['label_for']);
+		$value   = $options[$args['label_for']] ?? 1;
+		$sel1    = $value == 1 ? 'selected' : '';
+		$sel0    = $value != 1 ? 'selected' : '';
+		$txtYes  = __('Yes', 'panopticon');
+		$txtNo   = __('No', 'panopticon');
+		$description = __('Allow Akeeba Panopticon to remotely install extensions on this site. Disable this if you do not want to allow remote extension installation for security reasons.', 'panopticon');
+
+		echo <<< HTML
+<select id="$id" name="panopticon_options[$id]">
+	<option value="1" $sel1>$txtYes</option>
+	<option value="0" $sel0>$txtNo</option>
+</select>
+<p class="description">
+	$description
+</p>
+HTML;
+
+	}
+
+	/**
 	 * Registers the plugin options, and their handling, with WordPress
 	 *
 	 * @return  void
@@ -98,6 +129,18 @@ HTML;
 			'panopticon_section_prefs',
 			[
 				'label_for' => 'panopticon_field_sysinfo',
+				'class'     => 'panopticon_row',
+			]
+		);
+
+		add_settings_field(
+			'panopticon_field_allow_remote_install',
+			__('Allow Remote Extension Installation', 'panopticon'),
+			[$this, 'renderFieldAllowRemoteInstall'],
+			'panopticon',
+			'panopticon_section_prefs',
+			[
+				'label_for' => 'panopticon_field_allow_remote_install',
 				'class'     => 'panopticon_row',
 			]
 		);
