@@ -8,7 +8,7 @@ This is the connector plugin for [Akeeba Panopticon](https://github.com/akeeba/p
 
 ## 🔎 Release highlights
 
-* 🐞 Updating plugins would result in the updated plugin not being (re)activated
+* ✨ Remote plugin and theme installation. Panopticon 2 supports mass installation of plugins and themes across multiple sites. For this feature to work, you must update the connector to version 1.2.0.
 
 ## 🖥️ System Requirements
 
@@ -44,7 +44,7 @@ Please note that using these rules will prevent [WP-CLI](https://wp-cli.org/) fr
 
 ## 📋 CHANGELOG
 
-* 🐞 Updating plugins would result in the updated plugin not being (re)activated
+* ✨ Remote plugin and theme installation
 
 Legend:
 * 🚨 Security update

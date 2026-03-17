@@ -9,7 +9,7 @@
 Plugin Name: Akeeba Panopticon Connector for WordPress
 Plugin URI: https://github.com/akeeba/panopticon_connector_wp
 Description: Use your WordPress site with Akeeba Panopticon
-Version: 1.1.1
+Version: 1.2.0
 Panopticon API: 100
 Requires PHP: 7.2
 Requires at least: 5.0
