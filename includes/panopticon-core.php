@@ -802,7 +802,15 @@ class Panopticon_Core extends WP_REST_Controller
 
 		require ABSPATH . WPINC . '/version.php';
 
-		$url      = "https://getpanopticon.com/checksums/wordpress/{$wp_version}/sha256_squash.json.gz";
+		$base = $request->get_param('checksumsBaseUrl');
+		$base = is_string($base) ? trim($base) : '';
+
+		if ($base === '' || !preg_match('#^https?://#i', $base))
+		{
+			$base = 'https://getpanopticon.com/checksums';
+		}
+
+		$url      = rtrim($base, '/') . "/wordpress/{$wp_version}/sha256_squash.json.gz";
 		$response = wp_remote_get($url, ['timeout' => 30]);
 
 		if (is_wp_error($response))
