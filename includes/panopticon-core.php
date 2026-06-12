@@ -87,6 +87,32 @@ class Panopticon_Core extends WP_REST_Controller
 				],
 			]
 		);
+
+		register_rest_route(
+			$namespace, '/core/checksum/prepare', [
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [$this, 'prepareChecksum'],
+					'permission_callback' => [$this, 'ensureCanUpdateCore'],
+				],
+			]
+		);
+
+		register_rest_route(
+			$namespace, '/core/checksum/step/(?P<step>\d+)', [
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [$this, 'stepChecksum'],
+					'permission_callback' => [$this, 'ensureCanUpdateCore'],
+					'args'                => [
+						'step' => [
+							'default'           => 0,
+							'sanitize_callback' => 'absint',
+						],
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -760,6 +786,168 @@ class Panopticon_Core extends WP_REST_Controller
 		{
 			return null;
 		}
+	}
+
+	/**
+	 * Downloads WordPress core file checksums from getpanopticon.com and stores them in a transient for stepChecksum.
+	 *
+	 * @param   WP_REST_Request  $request
+	 *
+	 * @return  WP_REST_Response|WP_Error
+	 * @since   1.1.0
+	 */
+	public function prepareChecksum(WP_REST_Request $request)
+	{
+		global $wp_version;
+
+		require ABSPATH . WPINC . '/version.php';
+
+		$url      = "https://getpanopticon.com/checksums/wordpress/{$wp_version}/sha256_squash.json.gz";
+		$response = wp_remote_get($url, ['timeout' => 30]);
+
+		if (is_wp_error($response))
+		{
+			return new WP_Error(
+				'checksum_download_failed',
+				$response->get_error_message(),
+				['status' => 500]
+			);
+		}
+
+		$statusCode = wp_remote_retrieve_response_code($response);
+
+		if ($statusCode !== 200)
+		{
+			return new WP_Error(
+				'checksum_download_failed',
+				"Could not download checksums from {$url} (HTTP {$statusCode})",
+				['status' => (int) $statusCode]
+			);
+		}
+
+		$body = wp_remote_retrieve_body($response);
+		$json = @gzdecode($body);
+
+		if ($json === false)
+		{
+			return new WP_Error(
+				'checksum_decompress_failed',
+				'Failed to decompress checksums file',
+				['status' => 500]
+			);
+		}
+
+		$checksums = json_decode($json, true);
+
+		if (json_last_error() !== JSON_ERROR_NONE)
+		{
+			return new WP_Error(
+				'checksum_parse_failed',
+				'Failed to parse checksums JSON: ' . json_last_error_msg(),
+				['status' => 500]
+			);
+		}
+
+		delete_transient('panopticon_checksums');
+		set_transient('panopticon_checksums', $checksums, 2 * HOUR_IN_SECONDS);
+
+		return new WP_REST_Response(true, 200);
+	}
+
+	/**
+	 * Processes a batch of WordPress core files, comparing their SHA-256 checksums against the stored reference values.
+	 *
+	 * @param   WP_REST_Request  $request
+	 *
+	 * @return  WP_REST_Response|WP_Error
+	 * @since   1.1.0
+	 */
+	public function stepChecksum(WP_REST_Request $request)
+	{
+		$step      = absint($request['step'] ?? 0);
+		$checksums = get_transient('panopticon_checksums');
+
+		if ($checksums === false)
+		{
+			return new WP_Error(
+				'checksums_not_found',
+				'Checksums not found. Please call the prepare endpoint first.',
+				['status' => 404]
+			);
+		}
+
+		$allPaths     = array_keys($checksums);
+		$total        = count($allPaths);
+		$startTime    = microtime(true);
+		$invalidFiles = [];
+		$lastId       = $step;
+		$done         = false;
+		$batchSize    = 250;
+
+		while (true)
+		{
+			$batch = array_slice($allPaths, $lastId, $batchSize);
+
+			if (empty($batch))
+			{
+				$done = true;
+				break;
+			}
+
+			foreach ($batch as $path)
+			{
+				if (strpos($path, 'wp-content/') === 0)
+				{
+					continue;
+				}
+
+				$expectedChecksum = $checksums[$path];
+				$fullPath         = ABSPATH . $path;
+				$actualChecksum   = '';
+
+				if (@is_file($fullPath))
+				{
+					$content = @file_get_contents($fullPath);
+
+					if ($content !== false)
+					{
+						$content        = preg_replace('#[\n\r\t\s\v]+#ms', ' ', $content);
+						$actualChecksum = hash('sha256', $content);
+					}
+				}
+
+				if ($actualChecksum !== $expectedChecksum)
+				{
+					$invalidFiles[] = $path;
+				}
+			}
+
+			$lastId += count($batch);
+
+			if ((microtime(true) - $startTime) >= 2.0)
+			{
+				break;
+			}
+		}
+
+		if ($lastId >= $total)
+		{
+			$done = true;
+		}
+
+		if ($done)
+		{
+			delete_transient('panopticon_checksums');
+		}
+
+		return new WP_REST_Response(
+			[
+				'done'         => $done,
+				'last_id'      => $lastId,
+				'invalidFiles' => $invalidFiles,
+			],
+			200
+		);
 	}
 
 
