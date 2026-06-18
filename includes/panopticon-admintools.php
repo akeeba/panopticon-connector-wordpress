@@ -117,7 +117,7 @@ class Panopticon_AdminTools extends WP_REST_Controller
 
 		if (empty($ip) || !filter_var($ip, FILTER_VALIDATE_IP))
 		{
-			return new WP_Error('unblock_ip_required', 'You must provide an IP address', ['status' => 500]);
+			return new WP_Error('unblock_ip_required', __('You must provide an IP address.', 'panopticon'), ['status' => 500]);
 		}
 
 		/** @var UnblockIP $model */
@@ -246,7 +246,7 @@ class Panopticon_AdminTools extends WP_REST_Controller
 
 		if (empty($sessionData))
 		{
-			return new WP_Error(500, 'You need to pass the session data');
+			return new WP_Error(500, __('You must pass the session data.', 'panopticon'));
 		}
 
 		foreach ($sessionData as $key => $value)

@@ -1,0 +1,175 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Akeeba Panopticon Connector for WordPress\n"
+"Report-Msgid-Bugs-To: https://github.com/akeeba/panopticon-connector-wordpress/issues\n"
+"POT-Creation-Date: 2026-06-18 15:31+0300\n"
+"PO-Revision-Date: 2026-06-18 15:31+0300\n"
+"Last-Translator: OpenAI Codex\n"
+"Language-Team: Greek (Greece)\n"
+"Language: el_GR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: panopticon\n"
+
+msgid "Akeeba Panopticon connection information"
+msgstr "Στοιχεία σύνδεσης του Akeeba Panopticon"
+
+msgid ""
+"Allow Akeeba Panopticon to remotely install extensions on this site. Disable "
+"this if you do not want to allow remote extension installation for security "
+"reasons."
+msgstr ""
+"Να επιτρέπεται στο Akeeba Panopticon η απομακρυσμένη εγκατάσταση "
+"επεκτάσεων σε αυτόν τον ιστότοπο. Απενεργοποιήστε αυτήν την επιλογή αν δεν "
+"θέλετε να επιτρέπεται η απομακρυσμένη εγκατάσταση επεκτάσεων για λόγους "
+"ασφαλείας."
+
+msgid "Allow Remote Extension Installation"
+msgstr "Να επιτρέπεται η απομακρυσμένη εγκατάσταση επεκτάσεων"
+
+msgid "Already up to date."
+msgstr "Είναι ήδη ενημερωμένο."
+
+msgid "Another update is already running."
+msgstr "Εκτελείται ήδη άλλη ενημέρωση."
+
+msgid "Checksums were not found. Please call the prepare endpoint first."
+msgstr "Δεν βρέθηκαν αθροίσματα ελέγχου. Καλέστε πρώτα το endpoint προετοιμασίας."
+
+msgid ""
+"Collect and report system information such as CPU usage and disk usage. This "
+"is useful for troubleshooting server performance issues, but some hosts like "
+"to pretend you are not allowed to collect it and may give you a hard time. "
+"In this case, disable this feature until you move your site to a decent host."
+msgstr ""
+"Συλλέξτε και αναφέρετε πληροφορίες συστήματος όπως τη χρήση CPU και τη "
+"χρήση χώρου στον δίσκο. Αυτό είναι χρήσιμο για την αντιμετώπιση προβλημάτων "
+"απόδοσης του διακομιστή, αλλά ορισμένοι πάροχοι φιλοξενίας προσποιούνται "
+"ότι δεν επιτρέπεται να τα συλλέγετε και μπορεί να σας δυσκολέψουν. Σε αυτήν "
+"την περίπτωση, απενεργοποιήστε αυτήν τη δυνατότητα μέχρι να μεταφέρετε τον "
+"ιστότοπό σας σε έναν αξιοπρεπή πάροχο φιλοξενίας."
+
+msgid "Connection information"
+msgstr "Στοιχεία σύνδεσης"
+
+msgid "Could not determine whether the package is a plugin or a theme."
+msgstr "Δεν ήταν δυνατό να καθοριστεί αν το πακέτο είναι πρόσθετο ή θέμα."
+
+msgid "Could not download checksums from %1$s (HTTP %2$d)."
+msgstr "Δεν ήταν δυνατή η λήψη των αθροισμάτων ελέγχου από το %1$s (HTTP %2$d)."
+
+msgid "Could not find update information for WordPress %s."
+msgstr "Δεν ήταν δυνατό να βρεθούν πληροφορίες ενημέρωσης για το WordPress %s."
+
+msgid "Endpoint URL"
+msgstr "URL του endpoint"
+
+msgid "Failed to decompress the checksums file."
+msgstr "Δεν ήταν δυνατή η αποσυμπίεση του αρχείου αθροισμάτων ελέγχου."
+
+msgid "Failed to download the package: %s"
+msgstr "Δεν ήταν δυνατή η λήψη του πακέτου: %s"
+
+msgid "Failed to download the package: HTTP %d"
+msgstr "Δεν ήταν δυνατή η λήψη του πακέτου: HTTP %d"
+
+msgid "Failed to parse the checksums JSON: %s"
+msgstr "Δεν ήταν δυνατή η ανάλυση του JSON των αθροισμάτων ελέγχου: %s"
+
+msgid "Failed to save the uploaded file."
+msgstr "Δεν ήταν δυνατή η αποθήκευση του μεταφορτωμένου αρχείου."
+
+msgid "No"
+msgstr "Όχι"
+
+msgid "No file data was provided."
+msgstr "Δεν δόθηκαν δεδομένα αρχείου."
+
+msgid "Panopticon"
+msgstr "Panopticon"
+
+msgid "Plugin installation failed."
+msgstr "Η εγκατάσταση του πρόσθετου απέτυχε."
+
+msgid "Plugin installation failed: %s"
+msgstr "Η εγκατάσταση του πρόσθετου απέτυχε: %s"
+
+msgid "Plugin not found."
+msgstr "Το πρόσθετο δεν βρέθηκε."
+
+msgid "Preferences"
+msgstr "Προτιμήσεις"
+
+msgid "Remote extension installation is disabled on this site."
+msgstr "Η απομακρυσμένη εγκατάσταση επεκτάσεων είναι απενεργοποιημένη σε αυτόν τον ιστότοπο."
+
+msgid "Report System Information"
+msgstr "Αναφορά πληροφοριών συστήματος"
+
+msgid "Save Settings"
+msgstr "Αποθήκευση ρυθμίσεων"
+
+msgid "Settings saved."
+msgstr "Οι ρυθμίσεις αποθηκεύτηκαν."
+
+msgid "The URL parameter is required."
+msgstr "Η παράμετρος URL είναι υποχρεωτική."
+
+msgid "The filename is invalid after sanitisation."
+msgstr "Το όνομα αρχείου δεν είναι έγκυρο μετά τον καθαρισμό."
+
+msgid "The filename parameter is required."
+msgstr "Η παράμετρος ονόματος αρχείου είναι υποχρεωτική."
+
+msgid "The plugin was installed and activated successfully."
+msgstr "Το πρόσθετο εγκαταστάθηκε και ενεργοποιήθηκε με επιτυχία."
+
+msgid "The plugin was installed but activation failed: %s"
+msgstr "Το πρόσθετο εγκαταστάθηκε, αλλά η ενεργοποίηση απέτυχε: %s"
+
+msgid "The plugin was installed but could not be located."
+msgstr "Το πρόσθετο εγκαταστάθηκε, αλλά δεν ήταν δυνατό να εντοπιστεί."
+
+msgid "The provided URL is invalid."
+msgstr "Το παρεχόμενο URL δεν είναι έγκυρο."
+
+msgid "The theme was installed and activated successfully."
+msgstr "Το θέμα εγκαταστάθηκε και ενεργοποιήθηκε με επιτυχία."
+
+msgid "The theme was installed but could not be located."
+msgstr "Το θέμα εγκαταστάθηκε, αλλά δεν ήταν δυνατό να εντοπιστεί."
+
+msgid "Theme installation failed."
+msgstr "Η εγκατάσταση του θέματος απέτυχε."
+
+msgid "Theme installation failed: %s"
+msgstr "Η εγκατάσταση του θέματος απέτυχε: %s"
+
+msgid "Theme not found."
+msgstr "Το θέμα δεν βρέθηκε."
+
+msgid "There is no such update."
+msgstr "Δεν υπάρχει τέτοια ενημέρωση."
+
+msgid "Token"
+msgstr "Διακριτικό"
+
+msgid "Yes"
+msgstr "Ναι"
+
+msgid "You must pass the session data."
+msgstr "Πρέπει να περάσετε τα δεδομένα της συνεδρίας."
+
+msgid "You must provide an IP address."
+msgstr "Πρέπει να δώσετε μια διεύθυνση IP."
+
+msgid ""
+"Your site requires FTP credentials to install or update the WordPress core."
+msgstr ""
+"Ο ιστότοπός σας απαιτεί διαπιστευτήρια FTP για την εγκατάσταση ή ενημέρωση "
+"του πυρήνα του WordPress."
+
+msgid "latest"
+msgstr "τελευταία έκδοση"

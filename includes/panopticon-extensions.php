@@ -216,7 +216,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 		{
 			return new WP_Error(
 				'remote_install_disabled',
-				'Remote extension installation is disabled on this site.',
+				__('Remote extension installation is disabled on this site.', 'panopticon'),
 				['status' => 403]
 			);
 		}
@@ -226,13 +226,13 @@ class Panopticon_Extensions extends \WP_REST_Controller
 
 		if (empty($url))
 		{
-			return new WP_Error('missing_url', 'URL parameter is required', ['status' => 400]);
+			return new WP_Error('missing_url', __('The URL parameter is required.', 'panopticon'), ['status' => 400]);
 		}
 
 		// Validate URL
 		if (!filter_var($url, FILTER_VALIDATE_URL))
 		{
-			return new WP_Error('invalid_url', 'Invalid URL provided', ['status' => 400]);
+			return new WP_Error('invalid_url', __('The provided URL is invalid.', 'panopticon'), ['status' => 400]);
 		}
 
 		// Download the file to temporary directory
@@ -251,7 +251,10 @@ class Panopticon_Extensions extends \WP_REST_Controller
 
 			return new WP_Error(
 				'download_failed',
-				'Failed to download package: ' . $response->get_error_message(),
+				sprintf(
+					__('Failed to download the package: %s', 'panopticon'),
+					$response->get_error_message()
+				),
 				['status' => 500]
 			);
 		}
@@ -264,7 +267,10 @@ class Panopticon_Extensions extends \WP_REST_Controller
 
 			return new WP_Error(
 				'download_failed',
-				'Failed to download package: HTTP ' . $response_code,
+				sprintf(
+					__('Failed to download the package: HTTP %d', 'panopticon'),
+					$response_code
+				),
 				['status' => 500]
 			);
 		}
@@ -295,7 +301,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 		{
 			return new WP_Error(
 				'remote_install_disabled',
-				'Remote extension installation is disabled on this site.',
+				__('Remote extension installation is disabled on this site.', 'panopticon'),
 				['status' => 403]
 			);
 		}
@@ -305,7 +311,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 
 		if (empty($filename))
 		{
-			return new WP_Error('missing_filename', 'Filename parameter is required', ['status' => 400]);
+			return new WP_Error('missing_filename', __('The filename parameter is required.', 'panopticon'), ['status' => 400]);
 		}
 
 		// Sanitize filename: remove dots, backslashes, and forward slashes
@@ -313,7 +319,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 
 		if (empty($filename))
 		{
-			return new WP_Error('invalid_filename', 'Invalid filename after sanitization', ['status' => 400]);
+			return new WP_Error('invalid_filename', __('The filename is invalid after sanitisation.', 'panopticon'), ['status' => 400]);
 		}
 
 		// Get the uploaded binary data from request body
@@ -321,7 +327,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 
 		if (empty($body))
 		{
-			return new WP_Error('missing_data', 'No file data provided', ['status' => 400]);
+			return new WP_Error('missing_data', __('No file data was provided.', 'panopticon'), ['status' => 400]);
 		}
 
 		// Save to temporary directory
@@ -334,7 +340,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 		{
 			return new WP_Error(
 				'upload_failed',
-				'Failed to save uploaded file',
+				__('Failed to save the uploaded file.', 'panopticon'),
 				['status' => 500]
 			);
 		}
@@ -394,7 +400,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 		{
 			return new WP_Error(
 				'unknown_type',
-				'Could not determine if package is a plugin or theme',
+				__('Could not determine whether the package is a plugin or a theme.', 'panopticon'),
 				['status' => 400]
 			);
 		}
@@ -508,7 +514,10 @@ class Panopticon_Extensions extends \WP_REST_Controller
 		{
 			return new WP_Error(
 				'installation_failed',
-				'Plugin installation failed: ' . $result->get_error_message(),
+				sprintf(
+					__('Plugin installation failed: %s', 'panopticon'),
+					$result->get_error_message()
+				),
 				['status' => 500]
 			);
 		}
@@ -517,7 +526,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 		{
 			return new WP_Error(
 				'installation_failed',
-				'Plugin installation failed',
+				__('Plugin installation failed.', 'panopticon'),
 				['status' => 500]
 			);
 		}
@@ -529,7 +538,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 		{
 			return new WP_Error(
 				'plugin_not_found',
-				'Plugin installed but could not be located',
+				__('The plugin was installed but could not be located.', 'panopticon'),
 				['status' => 500]
 			);
 		}
@@ -551,7 +560,10 @@ class Panopticon_Extensions extends \WP_REST_Controller
 						'status'   => true,
 						'messages' => [
 							[
-								'message' => 'Plugin installed but activation failed: ' . $activate_result->get_error_message(),
+								'message' => sprintf(
+									__('The plugin was installed but activation failed: %s', 'panopticon'),
+									$activate_result->get_error_message()
+								),
 								'type'    => 'warning',
 							],
 						],
@@ -569,7 +581,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 					'status'   => true,
 					'messages' => [
 						[
-							'message' => 'Plugin installed and activated successfully',
+							'message' => __('The plugin was installed and activated successfully.', 'panopticon'),
 							'type'    => 'message',
 						],
 					],
@@ -598,7 +610,10 @@ class Panopticon_Extensions extends \WP_REST_Controller
 		{
 			return new WP_Error(
 				'installation_failed',
-				'Theme installation failed: ' . $result->get_error_message(),
+				sprintf(
+					__('Theme installation failed: %s', 'panopticon'),
+					$result->get_error_message()
+				),
 				['status' => 500]
 			);
 		}
@@ -607,7 +622,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 		{
 			return new WP_Error(
 				'installation_failed',
-				'Theme installation failed',
+				__('Theme installation failed.', 'panopticon'),
 				['status' => 500]
 			);
 		}
@@ -619,7 +634,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 		{
 			return new WP_Error(
 				'theme_not_found',
-				'Theme installed but could not be located',
+				__('The theme was installed but could not be located.', 'panopticon'),
 				['status' => 500]
 			);
 		}
@@ -636,7 +651,7 @@ class Panopticon_Extensions extends \WP_REST_Controller
 					'status'   => true,
 					'messages' => [
 						[
-							'message' => 'Theme installed and activated successfully',
+							'message' => __('The theme was installed and activated successfully.', 'panopticon'),
 							'type'    => 'message',
 						],
 					],

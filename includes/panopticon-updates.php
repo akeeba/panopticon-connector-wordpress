@@ -130,7 +130,7 @@ class Panopticon_Updates extends WP_REST_Controller
 
 		if (!isset($plugins[$plugin]))
 		{
-			return new WP_Error('rest_plugin_not_found', __('Plugin not found.'), ['status' => 404]);
+			return new WP_Error('rest_plugin_not_found', __('Plugin not found.', 'panopticon'), ['status' => 404]);
 		}
 
 		// Do I have an update?
@@ -143,7 +143,7 @@ class Panopticon_Updates extends WP_REST_Controller
 
 		if (!isset($updates[$plugin]))
 		{
-			return new WP_Error('no_such_update', 'There is no such update', ['status' => 409]);
+			return new WP_Error('no_such_update', __('There is no such update.', 'panopticon'), ['status' => 409]);
 		}
 
 		// Is the plugin activated?
@@ -243,7 +243,7 @@ class Panopticon_Updates extends WP_REST_Controller
 
 		if (!isset($themes[$theme]))
 		{
-			return new WP_Error('rest_theme_not_found', __('Theme not found.'), ['status' => 404]);
+			return new WP_Error('rest_theme_not_found', __('Theme not found.', 'panopticon'), ['status' => 404]);
 		}
 
 		// Do I have an update?
@@ -251,7 +251,7 @@ class Panopticon_Updates extends WP_REST_Controller
 
 		if (!isset($updates[$theme]))
 		{
-			return new WP_Error('no_such_update', 'There is no such update', ['status' => 409]);
+			return new WP_Error('no_such_update', __('There is no such update.', 'panopticon'), ['status' => 409]);
 		}
 
 		// Install the plugin update
@@ -317,7 +317,7 @@ class Panopticon_Updates extends WP_REST_Controller
 
 		if (!isset($plugins[$plugin]))
 		{
-			return new WP_Error('rest_plugin_not_found', __('Plugin not found.'), ['status' => 404]);
+			return new WP_Error('rest_plugin_not_found', __('Plugin not found.', 'panopticon'), ['status' => 404]);
 		}
 
 		$data          = $plugins[$plugin];

@@ -276,7 +276,10 @@ class Panopticon_Core extends WP_REST_Controller
 		{
 			return new WP_Error(
 				500,
-				sprintf('Could not find update information for WordPress %s.', $version ?: 'latest'),
+				sprintf(
+					__('Could not find update information for WordPress %s.', 'panopticon'),
+					$version ?: __('latest', 'panopticon')
+				),
 				$return
 			);
 		}
@@ -288,7 +291,7 @@ class Panopticon_Core extends WP_REST_Controller
 		{
 			return new WP_Error(
 				500,
-				'Your site requires FTP credentials to install/update the WordPress core.',
+				__('Your site requires FTP credentials to install or update the WordPress core.', 'panopticon'),
 				$return
 			);
 		}
@@ -322,7 +325,7 @@ class Panopticon_Core extends WP_REST_Controller
 			{
 				return new WP_Error(
 					500,
-					'Already up-to-date',
+					__('Already up to date.', 'panopticon'),
 					$return
 				);
 			}
@@ -331,7 +334,7 @@ class Panopticon_Core extends WP_REST_Controller
 			{
 				return new WP_Error(
 					500,
-					'Another update is already running',
+					__('Another update is already running.', 'panopticon'),
 					$return
 				);
 			}
@@ -828,7 +831,11 @@ class Panopticon_Core extends WP_REST_Controller
 		{
 			return new WP_Error(
 				'checksum_download_failed',
-				"Could not download checksums from {$url} (HTTP {$statusCode})",
+				sprintf(
+					__('Could not download checksums from %1$s (HTTP %2$d).', 'panopticon'),
+					$url,
+					$statusCode
+				),
 				['status' => (int) $statusCode]
 			);
 		}
@@ -840,7 +847,7 @@ class Panopticon_Core extends WP_REST_Controller
 		{
 			return new WP_Error(
 				'checksum_decompress_failed',
-				'Failed to decompress checksums file',
+				__('Failed to decompress the checksums file.', 'panopticon'),
 				['status' => 500]
 			);
 		}
@@ -851,7 +858,10 @@ class Panopticon_Core extends WP_REST_Controller
 		{
 			return new WP_Error(
 				'checksum_parse_failed',
-				'Failed to parse checksums JSON: ' . json_last_error_msg(),
+				sprintf(
+					__('Failed to parse the checksums JSON: %s', 'panopticon'),
+					json_last_error_msg()
+				),
 				['status' => 500]
 			);
 		}
@@ -879,7 +889,7 @@ class Panopticon_Core extends WP_REST_Controller
 		{
 			return new WP_Error(
 				'checksums_not_found',
-				'Checksums not found. Please call the prepare endpoint first.',
+				__('Checksums were not found. Please call the prepare endpoint first.', 'panopticon'),
 				['status' => 404]
 			);
 		}

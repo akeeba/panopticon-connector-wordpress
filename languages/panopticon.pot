@@ -1,0 +1,163 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Akeeba Panopticon Connector for WordPress\n"
+"Report-Msgid-Bugs-To: https://github.com/akeeba/panopticon-connector-wordpress/issues\n"
+"POT-Creation-Date: 2026-06-18 15:31+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Akeeba Ltd\n"
+"Language-Team: English (United Kingdom)\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: panopticon\n"
+
+msgid "Akeeba Panopticon connection information"
+msgstr ""
+
+msgid ""
+"Allow Akeeba Panopticon to remotely install extensions on this site. Disable "
+"this if you do not want to allow remote extension installation for security "
+"reasons."
+msgstr ""
+
+msgid "Allow Remote Extension Installation"
+msgstr ""
+
+msgid "Already up to date."
+msgstr ""
+
+msgid "Another update is already running."
+msgstr ""
+
+msgid "Checksums were not found. Please call the prepare endpoint first."
+msgstr ""
+
+msgid ""
+"Collect and report system information such as CPU usage and disk usage. This "
+"is useful for troubleshooting server performance issues, but some hosts like "
+"to pretend you are not allowed to collect it and may give you a hard time. "
+"In this case, disable this feature until you move your site to a decent host."
+msgstr ""
+
+msgid "Connection information"
+msgstr ""
+
+msgid "Could not determine whether the package is a plugin or a theme."
+msgstr ""
+
+msgid "Could not download checksums from %1$s (HTTP %2$d)."
+msgstr ""
+
+msgid "Could not find update information for WordPress %s."
+msgstr ""
+
+msgid "Endpoint URL"
+msgstr ""
+
+msgid "Failed to decompress the checksums file."
+msgstr ""
+
+msgid "Failed to download the package: %s"
+msgstr ""
+
+msgid "Failed to download the package: HTTP %d"
+msgstr ""
+
+msgid "Failed to parse the checksums JSON: %s"
+msgstr ""
+
+msgid "Failed to save the uploaded file."
+msgstr ""
+
+msgid "No"
+msgstr ""
+
+msgid "No file data was provided."
+msgstr ""
+
+msgid "Panopticon"
+msgstr ""
+
+msgid "Plugin installation failed."
+msgstr ""
+
+msgid "Plugin installation failed: %s"
+msgstr ""
+
+msgid "Plugin not found."
+msgstr ""
+
+msgid "Preferences"
+msgstr ""
+
+msgid "Remote extension installation is disabled on this site."
+msgstr ""
+
+msgid "Report System Information"
+msgstr ""
+
+msgid "Save Settings"
+msgstr ""
+
+msgid "Settings saved."
+msgstr ""
+
+msgid "The URL parameter is required."
+msgstr ""
+
+msgid "The filename is invalid after sanitisation."
+msgstr ""
+
+msgid "The filename parameter is required."
+msgstr ""
+
+msgid "The plugin was installed and activated successfully."
+msgstr ""
+
+msgid "The plugin was installed but activation failed: %s"
+msgstr ""
+
+msgid "The plugin was installed but could not be located."
+msgstr ""
+
+msgid "The provided URL is invalid."
+msgstr ""
+
+msgid "The theme was installed and activated successfully."
+msgstr ""
+
+msgid "The theme was installed but could not be located."
+msgstr ""
+
+msgid "Theme installation failed."
+msgstr ""
+
+msgid "Theme installation failed: %s"
+msgstr ""
+
+msgid "Theme not found."
+msgstr ""
+
+msgid "There is no such update."
+msgstr ""
+
+msgid "Token"
+msgstr ""
+
+msgid "Yes"
+msgstr ""
+
+msgid "You must pass the session data."
+msgstr ""
+
+msgid "You must provide an IP address."
+msgstr ""
+
+msgid ""
+"Your site requires FTP credentials to install or update the WordPress core."
+msgstr ""
+
+msgid "latest"
+msgstr ""

@@ -31,6 +31,7 @@
 
     <fileset dir="${dirs.root}" id="wpplugin" expandsymboliclinks="true">
         <include name="includes/**"/>
+        <include name="languages/**"/>
         <include name="vendor/**"/>
 
         <include name="panopticon.php"/>
@@ -52,7 +53,60 @@
     ====================================================================================================
     -->
     <target name="git" description="Makes only packages, not the documentation"
-            depends="new-release,composer-install,setup-properties,wp-package">
+            depends="new-release,composer-install,setup-properties,compile-translations,wp-package">
+    </target>
+
+    <target name="compile-translations" description="Compile GNU GetText translations to MO files">
+        <exec executable="sh" dir="${dirs.root}" returnProperty="gettext.msgfmt.return">
+            <arg value="-c"/>
+            <arg value="command -v msgfmt &gt;/dev/null 2&gt;&amp;1"/>
+        </exec>
+
+        <if>
+            <not><equals arg1="${gettext.msgfmt.return}" arg2="0"/></not>
+            <then>
+                <echo>GNU GetText tooling is required to compile the translation files.</echo>
+                <fail message="The 'msgfmt' command was not found in your PATH. Please install the gettext package on your system and run the build again."/>
+            </then>
+        </if>
+
+        <echo>Compiling translation files</echo>
+
+        <exec executable="msgfmt" dir="${dirs.root}" passthru="true">
+            <arg value="-o"/>
+            <arg value="${dirs.root}/languages/panopticon-de_DE.mo"/>
+            <arg value="${dirs.root}/languages/panopticon-de_DE.po"/>
+        </exec>
+
+        <exec executable="msgfmt" dir="${dirs.root}" passthru="true">
+            <arg value="-o"/>
+            <arg value="${dirs.root}/languages/panopticon-el_GR.mo"/>
+            <arg value="${dirs.root}/languages/panopticon-el_GR.po"/>
+        </exec>
+
+        <exec executable="msgfmt" dir="${dirs.root}" passthru="true">
+            <arg value="-o"/>
+            <arg value="${dirs.root}/languages/panopticon-es_ES.mo"/>
+            <arg value="${dirs.root}/languages/panopticon-es_ES.po"/>
+        </exec>
+
+        <exec executable="msgfmt" dir="${dirs.root}" passthru="true">
+            <arg value="-o"/>
+            <arg value="${dirs.root}/languages/panopticon-fr_FR.mo"/>
+            <arg value="${dirs.root}/languages/panopticon-fr_FR.po"/>
+        </exec>
+
+        <exec executable="msgfmt" dir="${dirs.root}" passthru="true">
+            <arg value="-o"/>
+            <arg value="${dirs.root}/languages/panopticon-it_IT.mo"/>
+            <arg value="${dirs.root}/languages/panopticon-it_IT.po"/>
+        </exec>
+
+        <exec executable="msgfmt" dir="${dirs.root}" passthru="true">
+            <arg value="-o"/>
+            <arg value="${dirs.root}/languages/panopticon-pt_PT.mo"/>
+            <arg value="${dirs.root}/languages/panopticon-pt_PT.po"/>
+        </exec>
     </target>
 
     <target name="new-release" depends="composer-install,link">

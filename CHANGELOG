@@ -2,6 +2,7 @@ Panopticon Connector for WordPress 1.2.1
 ================================================================================
 + Core File Integrity Check support [akeeba/panopticon#979]
 + Custom base URL for the Core File Integrity checksums source [akeeba/panopticon#981]
++ GNU GetText translation support and machine-translated language packs [#7]
 
 Panopticon Connector for WordPress 1.2.0
 ================================================================================

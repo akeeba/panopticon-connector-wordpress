@@ -9,6 +9,8 @@
 Plugin Name: Akeeba Panopticon Connector for WordPress
 Plugin URI: https://github.com/akeeba/panopticon_connector_wp
 Description: Use your WordPress site with Akeeba Panopticon
+Text Domain: panopticon
+Domain Path: /languages
 Version: 1.2.0
 Panopticon API: 100
 Requires PHP: 7.2
@@ -126,7 +128,19 @@ class PanopticonPlugin
 		$this->loadComposer();
 		$this->loadVersionInfo();
 
+		add_action('plugins_loaded', [$this, 'loadTextDomain']);
 		add_action('rest_api_init', [$this, 'loadRoutes']);
+	}
+
+	/**
+	 * Loads the plugin language files.
+	 *
+	 * @return  void
+	 * @since   1.3.0
+	 */
+	public function loadTextDomain(): void
+	{
+		load_plugin_textdomain('panopticon', false, dirname(plugin_basename(__FILE__)) . '/languages');
 	}
 
 	/**
@@ -331,7 +345,12 @@ class PanopticonPlugin
 		if (isset($_GET['settings-updated']))
 		{
 			// add settings saved message with the class of "updated"
-			add_settings_error('panopticon_messages', 'panopticon_message', 'Settings Saved', 'updated');
+			add_settings_error(
+				'panopticon_messages',
+				'panopticon_message',
+				__('Settings saved.', 'panopticon'),
+				'updated'
+			);
 		}
 
 		// Show error/update messages
@@ -374,7 +393,7 @@ class PanopticonPlugin
 			// (sections are registered for "panopticon", each field is registered to a specific section)
 			do_settings_sections('panopticon');
 			// output save settings button
-			submit_button('Save Settings');
+			submit_button(__('Save Settings', 'panopticon'));
 			?>
 		</form>
 		<?php
@@ -712,4 +731,3 @@ call_user_func(
 		}
 	}
 );
-

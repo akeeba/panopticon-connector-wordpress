@@ -1,0 +1,173 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Akeeba Panopticon Connector for WordPress\n"
+"Report-Msgid-Bugs-To: https://github.com/akeeba/panopticon-connector-wordpress/issues\n"
+"POT-Creation-Date: 2026-06-18 15:31+0300\n"
+"PO-Revision-Date: 2026-06-18 15:31+0300\n"
+"Last-Translator: OpenAI Codex\n"
+"Language-Team: Italian (Italy)\n"
+"Language: it_IT\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: panopticon\n"
+
+msgid "Akeeba Panopticon connection information"
+msgstr "Informazioni di connessione di Akeeba Panopticon"
+
+msgid ""
+"Allow Akeeba Panopticon to remotely install extensions on this site. Disable "
+"this if you do not want to allow remote extension installation for security "
+"reasons."
+msgstr ""
+"Consenti ad Akeeba Panopticon di installare estensioni da remoto su questo "
+"sito. Disattiva questa opzione se non vuoi consentire l’installazione remota "
+"di estensioni per motivi di sicurezza."
+
+msgid "Allow Remote Extension Installation"
+msgstr "Consenti l’installazione remota delle estensioni"
+
+msgid "Already up to date."
+msgstr "Già aggiornato."
+
+msgid "Another update is already running."
+msgstr "È già in corso un altro aggiornamento."
+
+msgid "Checksums were not found. Please call the prepare endpoint first."
+msgstr "I checksum non sono stati trovati. Chiama prima l’endpoint di preparazione."
+
+msgid ""
+"Collect and report system information such as CPU usage and disk usage. This "
+"is useful for troubleshooting server performance issues, but some hosts like "
+"to pretend you are not allowed to collect it and may give you a hard time. "
+"In this case, disable this feature until you move your site to a decent host."
+msgstr ""
+"Raccogli e segnala informazioni di sistema come l’uso della CPU e dello "
+"spazio su disco. Questo è utile per risolvere i problemi di prestazioni del "
+"server, ma alcuni host fanno finta che non ti sia consentito raccoglierle e "
+"possono renderti la vita difficile. In questo caso, disattiva questa "
+"funzione finché non sposti il tuo sito su un host decente."
+
+msgid "Connection information"
+msgstr "Informazioni di connessione"
+
+msgid "Could not determine whether the package is a plugin or a theme."
+msgstr "Non è stato possibile determinare se il pacchetto è un plugin o un tema."
+
+msgid "Could not download checksums from %1$s (HTTP %2$d)."
+msgstr "Non è stato possibile scaricare i checksum da %1$s (HTTP %2$d)."
+
+msgid "Could not find update information for WordPress %s."
+msgstr "Non è stato possibile trovare informazioni di aggiornamento per WordPress %s."
+
+msgid "Endpoint URL"
+msgstr "URL dell’endpoint"
+
+msgid "Failed to decompress the checksums file."
+msgstr "Impossibile decomprimere il file dei checksum."
+
+msgid "Failed to download the package: %s"
+msgstr "Impossibile scaricare il pacchetto: %s"
+
+msgid "Failed to download the package: HTTP %d"
+msgstr "Impossibile scaricare il pacchetto: HTTP %d"
+
+msgid "Failed to parse the checksums JSON: %s"
+msgstr "Impossibile analizzare il JSON dei checksum: %s"
+
+msgid "Failed to save the uploaded file."
+msgstr "Impossibile salvare il file caricato."
+
+msgid "No"
+msgstr "No"
+
+msgid "No file data was provided."
+msgstr "Non sono stati forniti dati del file."
+
+msgid "Panopticon"
+msgstr "Panopticon"
+
+msgid "Plugin installation failed."
+msgstr "L’installazione del plugin non è riuscita."
+
+msgid "Plugin installation failed: %s"
+msgstr "L’installazione del plugin non è riuscita: %s"
+
+msgid "Plugin not found."
+msgstr "Plugin non trovato."
+
+msgid "Preferences"
+msgstr "Preferenze"
+
+msgid "Remote extension installation is disabled on this site."
+msgstr "L’installazione remota delle estensioni è disattivata su questo sito."
+
+msgid "Report System Information"
+msgstr "Segnala informazioni di sistema"
+
+msgid "Save Settings"
+msgstr "Salva impostazioni"
+
+msgid "Settings saved."
+msgstr "Impostazioni salvate."
+
+msgid "The URL parameter is required."
+msgstr "Il parametro URL è obbligatorio."
+
+msgid "The filename is invalid after sanitisation."
+msgstr "Il nome file non è valido dopo la sanitizzazione."
+
+msgid "The filename parameter is required."
+msgstr "Il parametro del nome file è obbligatorio."
+
+msgid "The plugin was installed and activated successfully."
+msgstr "Il plugin è stato installato e attivato correttamente."
+
+msgid "The plugin was installed but activation failed: %s"
+msgstr "Il plugin è stato installato, ma l’attivazione non è riuscita: %s"
+
+msgid "The plugin was installed but could not be located."
+msgstr "Il plugin è stato installato, ma non è stato possibile trovarlo."
+
+msgid "The provided URL is invalid."
+msgstr "L’URL fornito non è valido."
+
+msgid "The theme was installed and activated successfully."
+msgstr "Il tema è stato installato e attivato correttamente."
+
+msgid "The theme was installed but could not be located."
+msgstr "Il tema è stato installato, ma non è stato possibile trovarlo."
+
+msgid "Theme installation failed."
+msgstr "L’installazione del tema non è riuscita."
+
+msgid "Theme installation failed: %s"
+msgstr "L’installazione del tema non è riuscita: %s"
+
+msgid "Theme not found."
+msgstr "Tema non trovato."
+
+msgid "There is no such update."
+msgstr "Non esiste un aggiornamento di questo tipo."
+
+msgid "Token"
+msgstr "Token"
+
+msgid "Yes"
+msgstr "Sì"
+
+msgid "You must pass the session data."
+msgstr "Devi passare i dati della sessione."
+
+msgid "You must provide an IP address."
+msgstr "Devi fornire un indirizzo IP."
+
+msgid ""
+"Your site requires FTP credentials to install or update the WordPress core."
+msgstr ""
+"Il tuo sito richiede credenziali FTP per installare o aggiornare il core di "
+"WordPress."
+
+msgid "latest"
+msgstr "ultima versione"

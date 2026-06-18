@@ -56,7 +56,7 @@ trait Panopticon_Options_Trait
 		$sel0    = $value != 1 ? 'selected' : '';
 		$txtYes  = __('Yes', 'panopticon');
 		$txtNo   = __('No', 'panopticon');
-		$description = __('Collect and report system information such as CPU usage, disk usage etc. This is useful for troubleshooting server performance issue, but some hosts like to pretend you are not allowed to collect it, and may give you a hard time. In this case, disable this feature until you move your site to a decent host.', 'panopticon');
+		$description = __('Collect and report system information such as CPU usage and disk usage. This is useful for troubleshooting server performance issues, but some hosts like to pretend you are not allowed to collect it and may give you a hard time. In this case, disable this feature until you move your site to a decent host.', 'panopticon');
 
 		echo <<< HTML
 <select id="$id" name="panopticon_options[$id]">
