@@ -133,6 +133,19 @@ class Panopticon_Updates extends WP_REST_Controller
 			return new WP_Error('rest_plugin_not_found', __('Plugin not found.', 'panopticon'), ['status' => 404]);
 		}
 
+		/**
+		 * Make sure the update information is up-to-date.
+		 *
+		 * Installing a plugin update deletes the `update_plugins` site transient. WordPress only repopulates it by
+		 * hooking wp_update_plugins() to `upgrader_process_complete` in wp-admin/includes/admin-filters.php, a file
+		 * which is never loaded during a REST request. Therefore, updating a plugin over the REST API leaves the
+		 * transient empty, and the next update request in the same batch would be rejected with a bogus 409.
+		 *
+		 * This call is cheap when the transient is intact; WordPress only queries its update server when the
+		 * transient is missing or stale.
+		 */
+		wp_update_plugins();
+
 		// Do I have an update?
 		$updates = get_plugin_updates();
 
@@ -178,6 +191,15 @@ class Panopticon_Updates extends WP_REST_Controller
 		{
 			activate_plugin($plugin, '', $isNetworkActivated, false);
 		}
+
+		/**
+		 * Rebuild the update information WordPress just threw away.
+		 *
+		 * This is what wp-admin/includes/admin-filters.php does after an update — but that file is not loaded during
+		 * a REST request. Without this, the site would report no available updates at all until something else
+		 * refreshes the transient.
+		 */
+		wp_update_plugins();
 
 		global $_panopticon_upgrade_messages;
 
@@ -246,6 +268,19 @@ class Panopticon_Updates extends WP_REST_Controller
 			return new WP_Error('rest_theme_not_found', __('Theme not found.', 'panopticon'), ['status' => 404]);
 		}
 
+		/**
+		 * Make sure the update information is up-to-date.
+		 *
+		 * Installing a theme update deletes the `update_themes` site transient. WordPress only repopulates it by
+		 * hooking wp_update_themes() to `upgrader_process_complete` in wp-admin/includes/admin-filters.php, a file
+		 * which is never loaded during a REST request. Therefore, updating a theme over the REST API leaves the
+		 * transient empty, and the next update request in the same batch would be rejected with a bogus 409.
+		 *
+		 * This call is cheap when the transient is intact; WordPress only queries its update server when the
+		 * transient is missing or stale.
+		 */
+		wp_update_themes();
+
 		// Do I have an update?
 		$updates = get_theme_updates();
 
@@ -275,6 +310,15 @@ class Panopticon_Updates extends WP_REST_Controller
 		{
 			return $result;
 		}
+
+		/**
+		 * Rebuild the update information WordPress just threw away.
+		 *
+		 * This is what wp-admin/includes/admin-filters.php does after an update — but that file is not loaded during
+		 * a REST request. Without this, the site would report no available updates at all until something else
+		 * refreshes the transient.
+		 */
+		wp_update_themes();
 
 		global $_panopticon_upgrade_messages;
 
