@@ -45,9 +45,18 @@ class Panopticon_AkeebaBackup extends WP_REST_Controller
 
 		$akeebaBackupVersion = defined('AKEEBABACKUP_VERSION') ? AKEEBABACKUP_VERSION : '0.0.0';
 
-		if (version_compare($akeebaBackupVersion, '8.0.0', 'lt'))
+		// Akeeba Backup for WordPress stores its server key in app/Solo/secretkey.php. A lightweight REST call never
+		// bootstraps the Solo admin page, so AKEEBA_SERVERKEY is not defined for us. Loading the key file directly,
+		// mirroring Solo's own bootstrap, makes Engine\Util\SecureSettings::getKey() resolve correctly regardless of
+		// the Akeeba Engine vendor directory depth or version-gated path differences.
+		if (!defined('AKEEBA_SERVERKEY') && class_exists('\AkeebaBackupWP'))
 		{
-			\Akeeba\Engine\Factory::getSecureSettings()->setKeyFilename('secretkey.php');
+			$secretKeyFile = \WP_PLUGIN_DIR . '/' . \AkeebaBackupWP::$dirName . '/app/Solo/secretkey.php';
+
+			if (is_readable($secretKeyFile))
+			{
+				require_once $secretKeyFile;
+			}
 		}
 
 		$ret['installed'] = true;

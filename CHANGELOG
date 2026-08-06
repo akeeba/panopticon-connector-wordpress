@@ -4,6 +4,7 @@ Panopticon Connector for WordPress 1.2.1
 + Custom base URL for the Core File Integrity checksums source [akeeba/panopticon#981]
 + GNU GetText translation support and machine-translated language packs [#7]
 # [HIGH] Only the first plugin or theme update in a batch would be installed; the rest failed with a bogus "There is no such update" error [#8]
+# [HIGH] getAkeebaBackupInfo() always returned an empty Akeeba Backup secret word, breaking the Akeeba Backup integration against WordPress sites [#9]                                                  
 
 Panopticon Connector for WordPress 1.2.0
 ================================================================================
