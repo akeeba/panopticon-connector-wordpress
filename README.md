@@ -2,7 +2,8 @@
 
 Allows you to connect WordPress sites to [Akeeba Panopticon](https://github.com/akeeba/panopticon).
 
-❗ You can only connect to WordPress sites using Akeeba Panopticon 1.2.0 and later versions.
+> [!IMPORTANT]
+> You can only connect to WordPress sites using Akeeba Panopticon 1.2.0 and later versions.
 
 ## Requirements
 
@@ -11,6 +12,23 @@ Allows you to connect WordPress sites to [Akeeba Panopticon](https://github.com/
 * (Optional) Akeeba Backup Professional 7.x or later — to enable backup features
 * (Optional) Admin Tools Professional 1.2.x or later — to enable security features
 
+## Build instructions
+
+Check out this repository and Akeeba Build Tools — Public Packager using the following directory names:
+
+- `panopticon-connector-wordpress` This repository.
+- `buildfiles` [Akeeba Build Tools — Public Packager](https://github.com/akeeba/buildfiles-public)
+- `build.properties` A file created as per the instructions in `buildfiles/README.md`
+
+Then:
+
+```bash
+cd panopticon-connector-wordpress
+composer install
+phing git
+```
+
+The generated package is under `panopticon-connector-wordpress/release`.
 ## Configuration
 
 ### Allow Remote Extension Installation
