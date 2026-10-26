@@ -8,7 +8,9 @@ This is the connector plugin for [Akeeba Panopticon](https://github.com/akeeba/p
 
 ## 🔎 Release highlights
 
-* ✨ Remote plugin and theme installation. Panopticon 2 supports mass installation of plugins and themes across multiple sites. For this feature to work, you must update the connector to version 1.2.0.
+* 🛡️ Core File Integrity Check. Panopticon can now verify your WordPress core files against the official checksums. By default the checksums come from WordPress.org; you can point the connector to a different source URL in Panopticon if you mirror them. You must update the connector to 1.2.1 on your sites for this feature to work.
+* 🌍 Translations. The connector now uses GNU GetText, and includes machine-translated language packs.
+* 🐞 Two important fixes. Installing several plugin/theme updates in one batch used to install only the first one (#8). The Akeeba Backup integration always got an empty secret word, which broke it for WordPress sites (#9). If you use either feature, update the connector.
 
 ## 🖥️ System Requirements
 
@@ -44,7 +46,11 @@ Please note that using these rules will prevent [WP-CLI](https://wp-cli.org/) fr
 
 ## 📋 CHANGELOG
 
-* ✨ Remote plugin and theme installation
+* ✨ Core File Integrity Check support [akeeba/panopticon#979]
+* ✨ Custom base URL for the Core File Integrity checksums source [akeeba/panopticon#981]
+* ✨ GNU GetText translation support and machine-translated language packs [#7]
+* 🐞 Only the first plugin or theme update in a batch was installed; the rest failed [#8]
+* 🐞 Akeeba Backup integration always received an empty secret word [#9]
 
 Legend:
 * 🚨 Security update
