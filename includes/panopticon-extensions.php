@@ -422,6 +422,19 @@ class Panopticon_Extensions extends \WP_REST_Controller
 			require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
 		}
 
+		// REST requests don't load the file API, and unzip_file() needs the global filesystem object.
+		if (!function_exists('unzip_file'))
+		{
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		global $wp_filesystem;
+
+		if (!is_object($wp_filesystem))
+		{
+			WP_Filesystem();
+		}
+
 		$filesystem = new WP_Filesystem_Direct(null);
 		$temp_dir   = get_temp_dir() . 'panopticon_detect_' . wp_generate_password(8, false);
 

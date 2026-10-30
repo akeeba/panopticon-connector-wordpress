@@ -1,3 +1,7 @@
+Panopticon Connector for WordPress 1.2.2
+================================================================================
+# [HIGH] Remote plugin/theme installation could fail with a fatal error or "unknown_type" when no other plugin had loaded the WordPress file API [#10]
+
 Panopticon Connector for WordPress 1.2.1
 ================================================================================
 + Core File Integrity Check support [akeeba/panopticon#979]

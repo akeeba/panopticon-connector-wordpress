@@ -73,8 +73,25 @@ function wp_generate_password($length = 12, $special = true)
 	return substr(bin2hex(random_bytes($length)), 0, $length);
 }
 
+function WP_Filesystem()
+{
+	global $wp_filesystem;
+
+	$wp_filesystem = new stdClass();
+
+	return true;
+}
+
 function unzip_file($file, $to)
 {
+	global $wp_filesystem;
+
+	// Like the real one, this needs the global filesystem object to have been initialised.
+	if (!is_object($wp_filesystem))
+	{
+		return new WP_Error('fs_unavailable', 'Could not access filesystem.');
+	}
+
 	$zip = new ZipArchive();
 
 	if ($zip->open($file) !== true)

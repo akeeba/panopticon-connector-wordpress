@@ -19,6 +19,12 @@ class ExtensionTypeDetectionTest extends TestCase
 	/** @var string[] */
 	private $zips = [];
 
+	protected function setUp(): void
+	{
+		// A REST request starts without an initialised filesystem object (GitHub issue #10, follow-up).
+		$GLOBALS['wp_filesystem'] = null;
+	}
+
 	protected function tearDown(): void
 	{
 		foreach ($this->zips as $zip)
